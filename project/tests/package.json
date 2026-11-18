@@ -16,7 +16,8 @@
     "http": "node http-smoke-test.mjs",
     "a11y": "node static-analyze.js",
     "datepicker": "node jalali-date.test.js",
-    "zip": "node zip-audit.mjs"
+    "zip": "node zip-audit.mjs",
+    "package": "node build-package.mjs"
   },
   "devDependencies": {
     "@adrianfalleiro/mariadb-wasm": "^0.1.2",

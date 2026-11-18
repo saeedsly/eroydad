@@ -10,10 +10,11 @@
 | `migration-test.mjs` | MariaDB 11.8 | گام‌های SQL مهاجرت ۰۰۲ و بی‌خطر‌بودن اجرای دوباره |
 | `migrate-run-test.mjs` | MariaDB 11.8 + PHP 7.4 | خودِ runner مهاجرت روی «نصب قدیمی» (حذف چند جدول/ستون و رکورد دفترچه) |
 | `integration-run.mjs` | MariaDB 11.8 + PHP 7.4 | ۱۵۶ بررسی رفتار سرویس‌ها روی ۱۷ محور: رویداد، ثبت‌نام سه‌حالته، مالیات و پرداخت آزمایشی، بلیت/HMAC/کنترل ورود، لغو و فهرست انتظار، گواهی و بازخورد، اعلان و یادآور، نقش و مجوز، متن امن/ICS/TOTP، Excel (ورود و خروج)، دسک پشتیبانی، گزارش‌ها، پوستر، مالکیت رویداد، پوشاندن داده، نشست/بازیابی رمز/مهاجرت/پشتیبان/retention، قفل درگاه واقعی |
-| `http-smoke-test.mjs` | MariaDB 11.8 + PHP 7.4 | ۱۱۱ بررسی در سطح HTTP روی فرانت‌کنترل واقعی: رندر صفحه‌ها، نشست، CSRF، فلش، کنترل دسترسی (مجبور‌سازی ۴۰۳ و دیدن مسیر مجاز)، منوی نقش‌محور، فرم ثبت‌نام واقعی و تکراری، اطلاعات سازمانی، تقویم ICS، JSON همگام‌سازی صف، دانلود XLSX، مسیرهای PWA و نصب در زیرپوشه |
+| `http-smoke-test.mjs` | MariaDB 11.8 + PHP 7.4 | ۱۳۲ بررسی در سطح HTTP روی فرانت‌کنترل واقعی: رندر صفحه‌ها، نشست، CSRF، فلش، کنترل دسترسی (مجبور‌سازی ۴۰۳ و دیدن مسیر مجاز)، منوی نقش‌محور، فرم ثبت‌نام واقعی و تکراری، پنل وضعیت جایگاه در صفحهٔ رویداد (قطعی/پرداخت‌نشده/ادامهٔ پرداخت)، ریز مبلغ و مالیات روی صفحهٔ رویداد پولی، اطلاعات سازمانی، تقویم ICS، JSON همگام‌سازی صف، دانلود XLSX، مسیرهای PWA و نصب در زیرپوشه |
 | `static-analyze.js` | — (تحلیل متن) | سازگاری route/سرویس/view، پوشش `action` فرم‌ها، وجود فایل‌های require، `prepare()` بدون `execute()`، کلاس namespaced بدون `import`، دسترس‌پذیری (alt، برچسب ورودی‌ها، `lang`/`dir`) و تأییدیهٔ `data-confirm` روی فرم‌های حساس |
 | `jalali-date.test.js` | — (Node) | تبدیل و اعتبارسنجی تقویم شمسی در `jalali-date-picker.js` |
 | `zip-audit.mjs` | — (Node) | ساختار بستهٔ ZIP: نبود رازها و `node_modules`، بودن فایل‌های لازم نصب، نبود دادهٔ کاربری در `storage/private`، نبود ارجاع CDN، نبود فایل تکراری |
+| `build-package.mjs` | — (Node) | ساخت بستهٔ ZIP قابل‌تحویل از پوشهٔ پروژه (بدون راز، `node_modules` و دادهٔ کاربری)؛ خروجی مرتب و تکرارپذیر است و پیش‌پوشهٔ `erooydad` دارد |
 
 ## آماده‌سازی
 
@@ -32,6 +33,8 @@ npm install          # @php-wasm/node، @php-wasm/universal، @adrianfalleiro/ma
 ```bash
 node tests/static-analyze.js        # تحلیل ایستا (سریع، بدون WASM)
 node tests/jalali-date.test.js      # آزمون تقویم شمسی (سریع، بدون WASM)
+> `jalali-date.test.js` فایل زیر آزمون را با مسیر نسبی نسبت به پوشهٔ `tests/` می‌خواند؛ پس باید از ریشهٔ پروژه (`project/`) اجرا شود، نه از یک پوشهٔ کپی‌شده.
+
 node tests/php-lint-wasm.mjs        # نحوی PHP 7.4 همهٔ فایل‌ها
 node tests/schema-test.mjs          # اجرای schema.sql روی MariaDB واقعی
 node tests/migration-test.mjs       # گام‌های SQL مهاجرت
@@ -39,6 +42,7 @@ node tests/migrate-run-test.mjs     # خودِ runner مهاجرت روی «نص
 node tests/integration-run.mjs      # رفتار سرویس‌ها
 node tests/http-smoke-test.mjs      # صفحه‌ها و مسیرهای PWA در سطح HTTP
 node tests/zip-audit.mjs [مسیر.zip] # بازرسی بستهٔ قابل‌نصب
+node tests/build-package.mjs [out.zip] # ساخت بستهٔ قابل‌تحویل (بعد از آن zip-audit را اجرا کنید)
 ```
 
 یا از npm:
@@ -53,6 +57,7 @@ npm --prefix tests run integration
 npm --prefix tests run http
 npm --prefix tests run datepicker
 npm --prefix tests run zip
+npm --prefix tests run package   # ساخت بسته، بعد npm --prefix tests run zip
 ```
 
 مسیر پروژه به‌صورت پیش‌فرض پوشهٔ والد `tests/` است؛ می‌توان مسیر را صریح داد:

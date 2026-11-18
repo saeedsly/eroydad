@@ -50,11 +50,16 @@ npm --prefix tests run schema        # اجرای schema.sql روی MariaDB وا
 npm --prefix tests run migration     # گام‌های مهاجرت ۰۰۲ و بی‌خطر‌بودن اجرای دوباره
 npm --prefix tests run migration:runner   # خودِ runner مهاجرت روی «نصب قدیمی»
 npm --prefix tests run integration   # رفتار سرویس‌ها (۱۵۶ بررسی)
-npm --prefix tests run http          # صفحه‌ها و مسیرهای PWA در سطح HTTP (۱۱۱ بررسی)
+npm --prefix tests run http          # صفحه‌ها و مسیرهای PWA در سطح HTTP (۱۳۲ بررسی)
+npm --prefix tests run datepicker    # تبدیل تاریخ شمسی در اسکریپت تقویم
+npm --prefix tests run package       # ساخت بستهٔ ZIP قابل‌تحویل از پوشهٔ پروژه
+npm --prefix tests run zip           # بازرس بسته: بدون راز، قابل‌نصب (۳۰ بررسی)
 ```
 
+`npm run a11y` همان `analyze` است (تحلیل ایستا شامل rules دسترس‌پذیری و فرم‌هاست).
+
 آخرین اجرای این مجموعه در محیط توسعه: نحوی ۹۹ فایل معتبر، schema و مهاجرت ۰۰۲ درست، ۱۵۶ بررسی یکپارچه و
-۱۱۱ بررسی HTTP موفق، تحلیل ایستا بدون خطا. آزمون‌ها Apache/`.htaccess`، HTTPS و مرورگرهای واقعی را
+۱۳۲ بررسی HTTP موفق، تحلیل ایستا بدون خطا، و بازرسی بستهٔ ZIP (۳۰ بررسی) روی همان خروجی. آزمون‌ها Apache/`.htaccess`، HTTPS و مرورگرهای واقعی را
 نمی‌آزمایند و جایگزین اجرای واقعی روی XAMPP مقصد نیستند.
 
 ## CSV کارکنان

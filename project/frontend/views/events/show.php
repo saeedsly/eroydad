@@ -15,6 +15,7 @@ $registered = (int)($event['registered_count'] ?? 0);
 $capacity = (int)($event['capacity'] ?? 1);
 $isFull = $registered >= $capacity;
 $descriptionHtml = \Eroydad\Security\SafeText::render((string)$event['description']);
+$seat = $seat ?? null;
 ?>
 <section class="section container event-detail">
   <a class="back-link" href="/events">← بازگشت به رویدادها</a>
@@ -68,7 +69,11 @@ $descriptionHtml = \Eroydad\Security\SafeText::render((string)$event['descriptio
         <div class="free-label">رایگان</div>
       <?php endif; ?>
       <h2>ثبت‌نام در رویداد</h2>
-      <p>برای رزرو جایگاه، ابتدا وارد حساب خود شوید یا حساب جدید بسازید.</p>
+      <?php if ($user): ?>
+        <p>ثبت‌نام با حساب «<?= h($user['full_name']) ?>» انجام می‌شود<?php if ($price > 0): ?> و پس از آن پرداخت آزمایشی دارید<?php endif; ?>.</p>
+      <?php else: ?>
+        <p>برای رزرو جایگاه، ابتدا وارد حساب خود شوید یا حساب جدید بسازید.</p>
+      <?php endif; ?>
       <?php if ($preview): ?>
         <div class="disabled-note">در حالت پیش‌نمایش، ثبت‌نام فعال نیست.</div>
       <?php elseif ($isFull): ?>
@@ -78,9 +83,29 @@ $descriptionHtml = \Eroydad\Security\SafeText::render((string)$event['descriptio
         <?php else: ?>
           <a class="btn btn-primary btn-block" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">ورود و ثبت‌نام</a>
         <?php endif; ?>
+      <?php elseif ($user && $seat): ?>
+        <div class="locked-field">
+          <?php if ($seat['status'] === 'pending_payment'): ?>
+            <b>ثبت‌نام شما هنوز پرداخت نشده است.</b>
+            <?php if ($seat['payment_status'] === 'failed' || $seat['payment_status'] === 'cancelled'): ?>
+              <p>پرداخت پیشین کامل نشد؛ می‌توانید دوباره امتحان کنید.</p>
+            <?php endif; ?>
+            <?php if ((int)$seat['payment_id'] > 0): ?>
+              <p><a class="btn btn-primary btn-block" href="/payments/<?= (int)$seat['payment_id'] ?>/sandbox">ادامهٔ پرداخت آزمایشی <span>←</span></a></p>
+            <?php endif; ?>
+          <?php else: ?>
+            <b>ثبت‌نام شما برای این رویداد قطعی شده است.</b>
+            <?php if ($seat['reference_code'] !== null && $seat['reference_code'] !== ''): ?>
+              <div class="price-row"><span>کد پیگیری</span><b class="ltr-text"><?= h($seat['reference_code']) ?></b></div>
+            <?php endif; ?>
+            <?php if ((int)$seat['ticket_id'] > 0): ?>
+              <p><a class="btn btn-soft btn-block" href="/tickets/<?= (int)$seat['ticket_id'] ?>/print">مشاهدهٔ بلیت و چاپ <span>←</span></a></p>
+            <?php endif; ?>
+            <p><a class="hero-link" href="/account">همهٔ ثبت‌نام‌های من <span>←</span></a></p>
+          <?php endif; ?>
+        </div>
       <?php elseif ($user): ?>
         <form method="post" action="/events/<?= (int)$event['id'] ?>/register"><?= csrfField() ?><input type="hidden" name="idempotency_key" value="<?= h(\Eroydad\Registration\RegistrationService::uuidV4()) ?>"><button class="btn btn-primary btn-block" type="submit"><?= $price > 0 ? 'ثبت‌نام و پرداخت آزمایشی' : 'ثبت‌نام' ?> <span>←</span></button></form>
-        <small>ثبت‌نام با حساب شما انجام می‌شود.</small>
       <?php else: ?>
         <a class="btn btn-primary btn-block" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">ورود و ثبت‌نام</a>
         <a class="signup-create" href="/register">حساب ندارید؟ ساخت حساب</a>

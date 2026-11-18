@@ -76,6 +76,22 @@ $eventId = $events->create($userId, [
   'ends_at' => $later,
 ]);
 $events->publish($eventId, $userId, false);
+$paidId = $events->create($userId, [
+  'title' => 'کارگاه پولی دود',
+  'summary' => 'رویداد پولی برای آزمودن نمایش ریز مبلغ و مالیات.',
+  'description' => 'شرح کامل رویداد پولی برای آزمودن رندر ریز مبلغ و مالیات در صفحهٔ عمومی.',
+  'category' => 'آزمون',
+  'delivery_mode' => 'online',
+  'venue' => 'آنلاین',
+  'capacity' => '10',
+  'price_toman' => '250000',
+  'tax_percent' => '10',
+  'tax_payer' => 'participant',
+  'starts_at' => $future,
+  'ends_at' => $later,
+]);
+$events->publish($paidId, $userId, false);
+$paidSlug = (string)$db->query('SELECT slug FROM events WHERE id=' . (int)$paidId)->fetchColumn();
 $sysHash = password_hash(passwordMaterial('Root-Admin-91-OK'), PASSWORD_DEFAULT);
 $stmt = $db->prepare("INSERT INTO users (phone,full_name,password_hash,account_type,status,phone_verified_at) VALUES (?,?,?,'municipal','active',UTC_TIMESTAMP())");
 $stmt->execute(['09129990003', 'مدیر سامانهٔ آزمون', $sysHash]);
@@ -84,7 +100,7 @@ $sysRole = $db->prepare("SELECT id FROM roles WHERE code='system_admin'");
 $sysRole->execute();
 $db->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?,?)')->execute([$sysId, (int)$sysRole->fetchColumn()]);
 $slug = (string)$db->query('SELECT slug FROM events WHERE id=' . (int)$eventId)->fetchColumn();
-echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, 'event_id' => $eventId, 'slug' => $slug]) . "\\n";
+echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, 'event_id' => $eventId, 'slug' => $slug, 'paid_id' => $paidId, 'paid_slug' => $paidSlug]) . "\\n";
 `,
   });
   const seedText = typeof seed.text === 'string' ? seed.text : new TextDecoder().decode(seed.stdout ?? new Uint8Array());
@@ -144,6 +160,17 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   const detail = await req('/events/' + seeded.slug);
   ok('صفحهٔ جزئیات رویداد کد ۲۰۰ می‌دهد', detail.status === 200 && !phpError(detail.text), 'status=' + detail.status);
   ok('صفحهٔ جزئیات، توضیح رویداد را نشان می‌دهد', detail.text.includes('توضیح کامل رویداد'));
+  ok('صفحهٔ جزئیات، بخش مبلغ را با حالت رایگان نشان می‌دهد', /رایگان|مبلغ پایه/.test(detail.text), detail.text.slice(0, 300));
+  ok('صفحهٔ رویداد رایگان، کاربر را به ورود فراخوان نمی‌کند وقتی نشست ندارد', /برای رزرو جایگاه، ابتدا وارد حساب/.test(detail.text), detail.text.slice(0, 400));
+
+  const paidDetail = await req('/events/' + seeded.paid_slug);
+  ok('صفحهٔ رویداد پولی کد ۲۰۰ می‌دهد', paidDetail.status === 200 && !phpError(paidDetail.text), 'status=' + paidDetail.status);
+  ok('ریز مبلغ پایه نمایش داده می‌شود', /مبلغ پایه<\/span><b>250,000 تومان/.test(paidDetail.text), (paidDetail.text.match(/price-box[\s\S]{0,700}/)||[''])[0].slice(0, 300));
+  ok('ریز مالیات با نرخ هر دوره نمایش داده می‌شود', /مالیات \(10٪\)<\/span><b>25,000 تومان/.test(paidDetail.text));
+  ok('پرداخت‌کنندۀ مالیات اعلام می‌شود', paidDetail.text.includes('پرداخت‌کنندهٔ مالیات') && /فراگیر/.test(paidDetail.text));
+  ok('جمع پرداختی نهایی درست محاسبه و نمایش داده می‌شود', /جمع پرداختی فراگیر<\/span><b>275,000 تومان/.test(paidDetail.text));
+  ok('صفحهٔ رویداد پولی برای مهمان، دکمۀ «ورود و ثبت‌نام» را نشان می‌دهد', /ورود و ثبت‌نام/.test(paidDetail.text) && !/name="idempotency_key"/.test(paidDetail.text), paidDetail.text.slice(0, 400));
+  ok('پیامک/درگاه واقعی در صفحه اعلام می‌شود', /هیچ وجه واقعی جابه‌جا نمی‌شود/.test(paidDetail.text));
 
   const notFound = await req('/this-page-does-not-exist');
   ok('صفحهٔ ناموجود کد ۴۰۴ می‌دهد', notFound.status === 404, 'status=' + notFound.status);
@@ -324,6 +351,39 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
       ok('ثبت‌نام دوباره با پیام به صفحهٔ رویداد برمی‌گردد', duplicate.status >= 300 && duplicate.status < 400, 'status=' + duplicate.status);
       const backPage = await req('/events/' + seeded.slug);
       ok('پیام تکراری بودن ثبت‌نام نشان داده می‌شود', /قبلاً/.test(backPage.text), backPage.text.slice(0, 220));
+      const loggedInEventPage = await req('/events/' + seeded.slug);
+      ok('برای کاربر واردشده، متن راهنما به جای «وارد شوید» نام حساب را می‌گوید', /ثبت‌نام با حساب «فراگیر دود»/.test(loggedInEventPage.text) && !/ابتدا وارد حساب خود شوید/.test(loggedInEventPage.text), loggedInEventPage.text.slice(0, 400));
+      ok('پس از ثبت‌نام، صفحهٔ رویداد دکمۀ ثبت‌نام را نشان نمی‌دهد', !/name="idempotency_key"/.test(loggedInEventPage.text), (loggedInEventPage.text.match(/signup-card[\s\S]{0,700}/) || [''])[0].slice(0, 400));
+      ok('صفحهٔ رویداد، وضعیت قطعی بودن ثبت‌نام را اعلام می‌کند', /ثبت‌نام شما برای این رویداد قطعی شده است/.test(loggedInEventPage.text));
+      ok('صفحهٔ رویداد، پیوند بلیت را دارد', /\/tickets\/\d+\/print/.test(loggedInEventPage.text));
+      const ticketLink = /href="\/tickets\/(\d+)\/print"/.exec(loggedInEventPage.text);
+      if (ticketLink) {
+        const ticketPage = await req('/tickets/' + ticketLink[1] + '/print');
+        ok('پیوند بلیتِ صفحهٔ رویداد باز می‌شود', ticketPage.status === 200 && !phpError(ticketPage.text), 'status=' + ticketPage.status);
+      }
+      const paidAsAttendee = await req('/events/' + seeded.paid_slug);
+      ok('رویداد پولی، دکمۀ پرداخت آزمایشی را برای کاربر واردشده نشان می‌دهد', /ثبت‌نام و پرداخت آزمایشی/.test(paidAsAttendee.text) && /name="idempotency_key"/.test(paidAsAttendee.text), paidAsAttendee.text.slice(0, 400));
+      const paidForm = /<form method="post" action="(\/events\/(\d+)\/register)"/.exec(paidAsAttendee.text);
+      const paidCsrf = /name="_csrf" value="([a-f0-9]{32,})"/.exec(paidAsAttendee.text);
+      const paidIdem = /name="idempotency_key" value="([^"]+)"/.exec(paidAsAttendee.text);
+      if (paidForm && paidCsrf && paidIdem) {
+        const startedPay = await req(paidForm[1], { method: 'POST', body: { _csrf: paidCsrf[1], idempotency_key: paidIdem[1] } });
+        const payLocation = String(startedPay.headers?.location ?? '');
+        ok('ثبت‌نام رویداد پولی به صفحۀ پرداخت آزمایشی می‌رود', startedPay.status === 303 && /^\/payments\/\d+\/sandbox$/.test(payLocation), 'status=' + startedPay.status + ' location=' + payLocation);
+        const pendingPage = await req('/events/' + seeded.paid_slug);
+        ok('پیش از پرداخت، صفحۀ رویداد هشدار پرداخت‌نشده می‌دهد', /هنوز پرداخت نشده است/.test(pendingPage.text) && /ادامۀ پرداخت آزمایشی|ادامهٔ پرداخت آزمایشی/.test(pendingPage.text), pendingPage.text.slice(0, 400));
+        ok('پیوند ادامۀ پرداخت به همان تراکنش می‌رود', pendingPage.text.includes(payLocation), payLocation);
+        if (payLocation) {
+          const payCsrf = /name="_csrf" value="([a-f0-9]{32,})"/.exec((await req(payLocation)).text);
+          if (payCsrf) {
+            const settled = await req(payLocation, { method: 'POST', body: { _csrf: payCsrf[1], scenario: 'success' } });
+            ok('پرداخت آزمایشی موفق است', !phpError(settled.text), settled.text.slice(0, 200));
+            const paidNow = await req('/events/' + seeded.paid_slug);
+            ok('پس از پرداخت، صفحۀ رویداد ثبت‌نام قطعی و کد پیگیری را نشان می‌دهد', /قطعی شده است/.test(paidNow.text) && /SBX-/.test(paidNow.text), paidNow.text.slice(0, 400));
+            ok('پس از پرداخت، فرم ثبت‌نام دوباره ظاهر نمی‌شود', !/name="idempotency_key"/.test(paidNow.text));
+          }
+        }
+      }
       const ics = await req('/account/calendar.ics');
       ok('تقویم شخصی با فرمت ICS دانلود می‌شود', ics.status === 200 && ics.text.includes('BEGIN:VCALENDAR') && /text\/calendar/.test(String(ics.headers?.['content-type'] ?? '')), 'status=' + ics.status + ' ' + ics.text.slice(0, 80));
       ok('رویداد ثبت‌نام‌شده در تقویم شخصی هست', ics.text.includes('SUMMARY') && /رویداد/.test(ics.text), ics.text.slice(0, 400));

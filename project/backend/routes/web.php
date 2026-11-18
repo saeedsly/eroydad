@@ -54,12 +54,26 @@ if ($method === 'GET' && preg_match('#^/events/([a-z0-9-]+)$#', $path, $m)) {
     $event = $events->bySlug($m[1]);
     if (!$event) { http_response_code(404); render('error', ['title'=>'رویداد پیدا نشد','message'=>'این رویداد وجود ندارد یا منتشر نشده است.']); exit; }
     $content = new EventContentService(db());
+    $viewer = currentUser();
+    $seat = null;
+    if ($viewer) {
+        $seatStmt = db()->prepare('SELECT r.id,r.status,r.amount_total_toman,'
+            . '(SELECT p.id FROM payments p WHERE p.registration_id=r.id ORDER BY p.id DESC LIMIT 1) AS payment_id,'
+            . '(SELECT p.status FROM payments p WHERE p.registration_id=r.id ORDER BY p.id DESC LIMIT 1) AS payment_status,'
+            . '(SELECT p.reference_code FROM payments p WHERE p.registration_id=r.id ORDER BY p.id DESC LIMIT 1) AS reference_code,'
+            . '(SELECT t.id FROM tickets t WHERE t.registration_id=r.id AND t.status=\'issued\' ORDER BY t.id DESC LIMIT 1) AS ticket_id '
+            . 'FROM registrations r WHERE r.event_id=? AND r.user_id=? AND r.status IN (\'confirmed\',\'pending_payment\') LIMIT 1');
+        $seatStmt->execute([(int)$event['id'], (int)$viewer['id']]);
+        $seatRow = $seatStmt->fetch(PDO::FETCH_ASSOC);
+        $seat = $seatRow ?: null;
+    }
     render('events/show', [
         'title'=>$event['title'],
         'event'=>$event,
         'sessions'=>$content->sessions((int)$event['id']),
         'tags'=>$content->tags((int)$event['id']),
         'instructor'=>['name'=>$event['instructor_name'] ?? '','bio'=>$event['instructor_bio'] ?? ''],
+        'seat'=>$seat,
     ]);
     exit;
 }

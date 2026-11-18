@@ -1,0 +1,22 @@
+{
+  "name": "ای‌رویداد — سامانهٔ دوره‌ها و رویدادهای شهرداری",
+  "short_name": "ای‌رویداد",
+  "description": "سامانهٔ ثبت‌نام و مدیریت دوره‌های آموزشی مؤسسه آموزش، تحقیقات و مشاوره شهرداری‌های خراسان رضوی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#14283d",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "دوره‌ها", "url": "./events", "icons": [ { "src": "assets/icons/icon-192.png", "sizes": "192x192" } ] },
+    { "name": "پنل کاربری", "url": "./account", "icons": [ { "src": "assets/icons/icon-192.png", "sizes": "192x192" } ] }
+  ]
+}

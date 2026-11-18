@@ -1,0 +1,4 @@
+<article class="event-card">
+  <a class="event-art art-<?= h((string)(crc32((string)$event['category'])%5)) ?>" href="/events/<?= h($event['slug']) ?>"><span class="art-tag"><?= h($event['category']) ?></span><span class="art-symbol" aria-hidden="true">✦</span><span class="art-lines" aria-hidden="true"></span></a>
+  <div class="event-card-body"><div class="event-meta"><span><?= h($event['delivery_mode']==='online'?'آنلاین':($event['delivery_mode']==='hybrid'?'ترکیبی':'حضوری')) ?></span><span>·</span><span><?= toPersianDigits((string)$event['registered_count']) ?> ثبت‌نام</span></div><h3><a href="/events/<?= h($event['slug']) ?>"><?= h($event['title']) ?></a></h3><p><?= h($event['summary']) ?></p><div class="event-card-bottom"><span><?= h(jalaliDate($event['starts_at_utc'],'Y/m/d')) ?></span><b>رایگان</b></div><a class="card-link" href="/events/<?= h($event['slug']) ?>">مشاهده جزئیات <span>←</span></a></div>
+</article>

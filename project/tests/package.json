@@ -1,0 +1,26 @@
+{
+  "name": "erooydad-test-harness",
+  "version": "1.0.0",
+  "private": true,
+  "description": "محیط آزمون ای‌رویداد: PHP 7.4 واقعی و MariaDB 11.8 واقعی روی WebAssembly",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "lint": "node php-lint-wasm.mjs",
+    "analyze": "node static-analyze.js",
+    "schema": "node schema-test.mjs",
+    "migration": "node migration-test.mjs",
+    "migration:runner": "node migrate-run-test.mjs",
+    "integration": "node integration-run.mjs",
+    "http": "node http-smoke-test.mjs",
+    "a11y": "node static-analyze.js",
+    "datepicker": "node jalali-date.test.js",
+    "zip": "node zip-audit.mjs"
+  },
+  "devDependencies": {
+    "@adrianfalleiro/mariadb-wasm": "^0.1.2",
+    "@php-wasm/node": "^3.1.54",
+    "@php-wasm/universal": "^3.1.54"
+  }
+}

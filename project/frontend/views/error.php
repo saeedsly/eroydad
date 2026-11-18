@@ -1,0 +1,1 @@
+<section class="section container"><div class="empty-box"><span>!</span><h1><?= h($title ?? 'خطا') ?></h1><p><?= h($message ?? 'درخواست انجام نشد.') ?></p><a class="btn btn-primary" href="/">بازگشت به خانه</a></div></section>

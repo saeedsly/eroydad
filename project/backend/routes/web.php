@@ -96,6 +96,50 @@ if (route('POST', '#^/events/(\d+)/register$#', $method, $path, $m)) {
         redirect($eventSlug !== '' ? '/events/' . $eventSlug : $back);
     }
 }
+if (route('POST', '#^/events/([a-z0-9-]+)/quick-register$#', $method, $path, $m)) {
+    $eventSlug = $m[1];
+    $event = $events->bySlug($eventSlug);
+    if (!$event) { http_response_code(404); render('error',['title'=>'رویداد پیدا نشد','message'=>'این رویداد وجود ندارد یا منتشر نشده است.']); exit; }
+    if (isset($_SESSION['user_id'])) { redirect('/events/' . $eventSlug); }
+    $phone = normalizePhone((string)($_POST['phone'] ?? ''));
+    $fullName = trim((string)($_POST['full_name'] ?? ''));
+    $password = (string)($_POST['password'] ?? '');
+    $limiter = new \Eroydad\Security\RateLimiter(db(), appConfig()['app']['app_key']);
+    $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'local');
+    try {
+        $limiter->assertRegistrationAllowed($phone, $ip);
+        $limiter->recordRegistration($phone, $ip);
+        $find = db()->prepare('SELECT id, password_hash, session_version, status FROM users WHERE phone=? LIMIT 1');
+        $find->execute([$phone]);
+        $existing = $find->fetch();
+        if ($existing) {
+            if (($existing['status'] ?? '') !== 'active') throw new DomainException('این حساب فعال نیست.');
+            if (!password_verify(passwordMaterial($password), (string)$existing['password_hash'])) {
+                throw new DomainException('این شماره قبلاً حساب دارد؛ با رمز خود وارد شوید یا شمارهٔ دیگری بزنید.');
+            }
+            $userId = (int)$existing['id'];
+            $sessionVersion = (int)$existing['session_version'];
+        } else {
+            $userId = $auth->register($fullName, $phone, $password, 'public', '', null);
+            $sessionVersion = 1;
+        }
+        session_regenerate_id(true);
+        $_SESSION['_created_at'] = time();
+        $_SESSION['_last_activity'] = time();
+        unset($_SESSION['_csrf']);
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['session_version'] = $sessionVersion;
+        $result = (new RegistrationService(db()))->register((int)$event['id'], $userId, RegistrationService::uuidV4());
+        setFlash('success', $result['message']);
+        if ($result['status'] === 'pending_payment' && (int)$result['payment_id'] > 0) {
+            redirect('/payments/' . (int)$result['payment_id'] . '/sandbox');
+        }
+        redirect('/account');
+    } catch (DomainException $e) {
+        setFlash('error', $e->getMessage());
+        redirect('/events/' . $eventSlug);
+    }
+}
 if (route('GET', '#^/events/([a-z0-9-]+)/poster$#', $method, $path, $m)) {
     $event = $events->bySlug($m[1]);
     if (!$event || empty($event['poster_path'])) { http_response_code(404); exit; }

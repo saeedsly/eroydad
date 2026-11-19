@@ -33,7 +33,7 @@ $action = $isEdit ? '/admin/events/' . (int)$event['id'] . '/edit' : '/admin/eve
           <div class="jalali-field" data-jalali-picker>
             <label for="<?= h($field) ?>_date"><?= h($dateLabel) ?></label>
             <div class="jalali-date-row">
-              <input id="<?= h($field) ?>_date" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="۱۴۰۵/۰۸/۲۴" value="<?= h($dateValue) ?>" data-jalali-date aria-describedby="<?= h($field) ?>_error" required>
+              <input id="<?= h($field) ?>_date" name="<?= h($field) ?>_date" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="۱۴۰۵/۰۸/۲۴" value="<?= h($dateValue) ?>" data-jalali-date aria-describedby="<?= h($field) ?>_error" required>
               <button class="calendar-trigger" type="button" data-calendar-toggle aria-label="باز کردن تقویم شمسی" aria-expanded="false">▦</button>
             </div>
             <div class="jalali-calendar" data-calendar hidden>
@@ -43,7 +43,7 @@ $action = $isEdit ? '/admin/events/' . (int)$event['id'] . '/edit' : '/admin/eve
             </div>
             <small class="date-input-error" id="<?= h($field) ?>_error" data-date-error aria-live="polite"></small>
             <label class="time-label" for="<?= h($field) ?>_time"><?= h($timeLabel) ?></label>
-            <input id="<?= h($field) ?>_time" type="time" value="<?= h($timeValue) ?>" data-jalali-time required>
+            <input id="<?= h($field) ?>_time" name="<?= h($field) ?>_time" type="time" value="<?= h($timeValue) ?>" data-jalali-time required>
             <input type="hidden" name="<?= h($field) ?>" value="" data-gregorian-datetime>
           </div>
           <?php endforeach; ?>

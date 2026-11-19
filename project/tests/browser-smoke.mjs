@@ -26,6 +26,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(process.argv[2] || path.join(HERE, '..'));
 
 const failures = [];
+let exitCode = 0;
 function ok(label, condition, detail = '') {
   if (condition) { console.log('PASS  ' + label); return; }
   failures.push(label + (detail ? ' :: ' + String(detail).slice(0, 220) : ''));
@@ -270,15 +271,17 @@ echo 'SEED ' . json_encode(['slug'=>$slug]) . "\\n";
   console.log('');
   if (failures.length) {
     console.log('آزمون مرورگر: ' + failures.length + ' ایراد.');
-    process.exit(1);
+    exitCode = 1;
+  } else {
+    console.log('آزمون مرورگر: سه اندازهٔ صفحه، منو، فرم و فونت همه درست‌اند.');
+    console.log('یادآوری: این اجرا تک‌موتوره (Chromium headless) است؛ ماتریس مرورگرهای واقعی چک‌لیست دستی است.');
   }
-  console.log('آزمون مرورگر: سه اندازهٔ صفحه، منو، فرم و فونت همه درست‌اند.');
-  console.log('یادآوری: این اجرا تک‌موتوره (Chromium headless) است؛ ماتریس مرورگرهای واقعی چک‌لیست دستی است.');
-  process.exit(0);
 } catch (error) {
   console.log('آزمون مرورگر با خطا متوقف شد: ' + (error && error.stack ? error.stack : error));
-  process.exit(1);
+  exitCode = 1;
 } finally {
   try { if (browser) await browser.close(); } catch (e) { /* بستن مرورگر */ }
   try { if (server) server.close(); } catch (e) { /* بستن سرور */ }
+  await env.close().catch(() => {});
 }
+process.exit(exitCode);

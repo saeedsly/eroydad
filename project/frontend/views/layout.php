@@ -119,6 +119,7 @@ if ($user) {
 <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-logo" href="/"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 25h22M8 25V13l8-6 8 6v12M12 16h2v3h-2zm6 0h2v3h-2zM14 25v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12 16 4l12 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>ای‌رویداد</b><small>مؤسسه آموزش، تحقیقات و مشاوره شهرداری‌های خراسان رضوی</small></span></a><p>یادگیری امروز، خدمت‌رسانی بهتر به شهروندان فردا.</p></div><div><b>دسترسی سریع</b><a href="/events">رویدادها</a><a href="/#about">درباره مؤسسه</a><a href="/support">پشتیبانی</a></div><div><b>اطلاعات</b><a href="/#faq">پرسش‌های متداول</a><a href="/privacy">حریم خصوصی</a><a href="/terms">شرایط استفاده و مالکیت</a></div></div><div class="container footer-bottom"><span>© تمامی حقوق مادی و معنوی ای‌رویداد، شامل نام، نشان، طراحی، متن‌ها و نرم‌افزار، متعلق به مؤسسه آموزش، تحقیقات و مشاوره شهرداری‌های خراسان رضوی است. بازنشر یا بهره‌برداری تجاری بدون اجازهٔ کتبی ممنوع است.</span><span>نسخهٔ محلی — درگاه واقعی و پیامک غیرفعال</span></div></footer>
 <script src="<?= h(assetUrl('/assets/js/menu.js')) ?>" defer></script>
 <script src="<?= h(assetUrl('/assets/js/theme.js')) ?>" defer></script>
+<script src="<?= h(assetUrl('/assets/js/effects.js')) ?>" defer></script>
 <script src="<?= h(assetUrl('/assets/js/pwa.js')) ?>" defer></script>
 </body>
 </html>

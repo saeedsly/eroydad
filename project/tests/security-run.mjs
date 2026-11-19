@@ -14,6 +14,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(process.argv[2] || path.join(HERE, '..'));
 
 const failures = [];
+let exitCode = 0;
 function ok(label, condition, detail = '') {
   if (condition) { console.log('PASS  ' + label); return; }
   failures.push(label + (detail ? ' :: ' + detail.slice(0, 220) : ''));
@@ -221,13 +222,14 @@ echo 'SEED ' . json_encode(['user_a'=>$userA,'user_b'=>$userB,'sys'=>$sys,'event
   console.log('');
   if (failures.length) {
     console.log('آزمون امنیت: ' + failures.length + ' ایراد.');
-    process.exit(1);
+    exitCode = 1;
+  } else {
+    console.log('آزمون امنیت: مالکیت، CSRF، نقش، XSS و محدودیت نرخ همه درست‌اند.');
   }
-  console.log('آزمون امنیت: مالکیت، CSRF، نقش، XSS و محدودیت نرخ همه درست‌اند.');
-  process.exit(0);
 } catch (error) {
   console.log('آزمون امنیت با خطا متوقف شد: ' + (error && error.message));
-  process.exit(1);
+  exitCode = 1;
 } finally {
-  await env.engine?.close?.().catch?.(() => {});
+  await env.close().catch(() => {});
 }
+process.exit(exitCode);

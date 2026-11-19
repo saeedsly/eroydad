@@ -55,10 +55,8 @@ for (const file of files) {
 }
 
 console.log(`نتیجه: ${files.length} فایل، ${totalPass} موفق، ${totalFail} ناموفق`);
-if (totalFail > 0 || failedFiles.length > 0) {
-  console.log('STATUS: FAILED — ' + failedFiles.join(', '));
-  process.exit(1);
-}
-console.log('آزمون واحد: همهٔ منطق خالص بدون خطا.');
-console.log('STATUS: PASSED');
-process.exit(0);
+const exitCode = (totalFail > 0 || failedFiles.length > 0) ? 1 : 0;
+if (exitCode) console.log('STATUS: FAILED — ' + failedFiles.join(', '));
+else console.log('آزمون واحد: همهٔ منطق خالص بدون خطا.\nSTATUS: PASSED');
+await env.close().catch(() => {});
+process.exit(exitCode);

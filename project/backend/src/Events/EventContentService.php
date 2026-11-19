@@ -35,8 +35,8 @@ final class EventContentService
         if (mb_strlen($title, 'UTF-8') < 3 || mb_strlen($title, 'UTF-8') > 190) {
             throw new \DomainException('عنوان جلسه باید بین ۳ تا ۱۹۰ نویسه باشد.');
         }
-        $start = EventService::localDateToUtc((string)($input['starts_at'] ?? ''));
-        $end = EventService::localDateToUtc((string)($input['ends_at'] ?? ''));
+        $start = EventService::localDateToUtc(EventService::dateTimeFromInput($input, 'starts_at'));
+        $end = EventService::localDateToUtc(EventService::dateTimeFromInput($input, 'ends_at'));
         if ($end <= $start) {
             throw new \DomainException('زمان پایان جلسه باید بعد از زمان شروع باشد.');
         }

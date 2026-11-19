@@ -81,16 +81,16 @@ $breakdown = \Eroydad\Payments\Money::breakdown($price, (float)$event['tax_perce
         <div class="two-cols">
           <div class="jalali-field" data-jalali-picker>
             <label for="session_start_date">تاریخ شروع</label>
-            <div class="jalali-date-row"><input id="session_start_date" type="text" inputmode="numeric" maxlength="10" data-jalali-date required><button class="calendar-trigger" type="button" data-calendar-toggle aria-label="انتخاب تاریخ">▦</button></div>
+            <div class="jalali-date-row"><input id="session_start_date" name="starts_at_date" type="text" inputmode="numeric" maxlength="10" data-jalali-date required><button class="calendar-trigger" type="button" data-calendar-toggle aria-label="انتخاب تاریخ">▦</button></div>
             <div class="jalali-calendar" data-calendar hidden><div class="jalali-calendar-head"><button type="button" data-month-prev aria-label="ماه قبل">›</button><strong data-month-title></strong><button type="button" data-month-next aria-label="ماه بعد">‹</button></div><div class="jalali-calendar-weekdays" aria-hidden="true"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div><div class="jalali-calendar-days" data-calendar-days></div></div>
-            <label class="time-label" for="session_start_time">ساعت شروع</label><input id="session_start_time" type="time" data-jalali-time required>
+            <label class="time-label" for="session_start_time">ساعت شروع</label><input id="session_start_time" name="starts_at_time" type="time" data-jalali-time required>
             <input type="hidden" name="starts_at" data-gregorian-datetime>
           </div>
           <div class="jalali-field" data-jalali-picker>
             <label for="session_end_date">تاریخ پایان</label>
-            <div class="jalali-date-row"><input id="session_end_date" type="text" inputmode="numeric" maxlength="10" data-jalali-date required><button class="calendar-trigger" type="button" data-calendar-toggle aria-label="انتخاب تاریخ">▦</button></div>
+            <div class="jalali-date-row"><input id="session_end_date" name="ends_at_date" type="text" inputmode="numeric" maxlength="10" data-jalali-date required><button class="calendar-trigger" type="button" data-calendar-toggle aria-label="انتخاب تاریخ">▦</button></div>
             <div class="jalali-calendar" data-calendar hidden><div class="jalali-calendar-head"><button type="button" data-month-prev aria-label="ماه قبل">›</button><strong data-month-title></strong><button type="button" data-month-next aria-label="ماه بعد">‹</button></div><div class="jalali-calendar-weekdays" aria-hidden="true"><span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span></div><div class="jalali-calendar-days" data-calendar-days></div></div>
-            <label class="time-label" for="session_end_time">ساعت پایان</label><input id="session_end_time" type="time" data-jalali-time required>
+            <label class="time-label" for="session_end_time">ساعت پایان</label><input id="session_end_time" name="ends_at_time" type="time" data-jalali-time required>
             <input type="hidden" name="ends_at" data-gregorian-datetime>
           </div>
         </div>

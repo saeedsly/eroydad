@@ -174,8 +174,8 @@ final class EventService
         if ($price === 0 && $taxPercent > 0) throw new \DomainException('برای دورهٔ رایگان، نرخ مالیات باید صفر باشد.');
         if (mb_strlen($instructorName, 'UTF-8') > 160) throw new \DomainException('نام مدرس بیش از حد طولانی است.');
         if (mb_strlen($instructorBio, 'UTF-8') > 2000) throw new \DomainException('سوابق مدرس بیش از حد طولانی است.');
-        $start = self::localDateToUtc((string)($input['starts_at'] ?? ''));
-        $end = self::localDateToUtc((string)($input['ends_at'] ?? ''));
+        $start = self::localDateToUtc(self::dateTimeFromInput($input, 'starts_at'));
+        $end = self::localDateToUtc(self::dateTimeFromInput($input, 'ends_at'));
         if ($end <= $start) throw new \DomainException('زمان پایان باید بعد از زمان شروع باشد.');
         if ($start <= gmdate('Y-m-d H:i:s')) throw new \DomainException('زمان شروع باید در آینده باشد.');
         return [
@@ -254,6 +254,29 @@ final class EventService
             'checked_in' => (int)$checkStmt->fetchColumn(),
             'capacity' => (int)$eventStmt->fetchColumn(),
         ];
+    }
+
+    /**
+     * مقدار «Y-m-dTH:i» برای یک فیلد تاریخ: از فیلد مخفیِ پر شده توسط تقویم شمسی،
+     * یا در نبودش (JS خاموش/نشکسته) از فیلدهای قابل‌مشاهدهٔ «تاریخ شمسی + ساعت».
+     * اگر هیچ‌کدام نباشد رشتهٔ خالی برمی‌گردد تا پیام استاندارد «تاریخ/ساعت معتبر نیست» داده شود.
+     */
+    public static function dateTimeFromInput(array $input, string $field): string
+    {
+        $raw = trim((string)($input[$field] ?? ''));
+        if ($raw !== '') {
+            return $raw;
+        }
+        $date = trim((string)($input[$field . '_date'] ?? ''));
+        $time = trim((string)($input[$field . '_time'] ?? ''));
+        if ($date === '' && $time === '') {
+            return '';
+        }
+        $gregorian = \gregorianFromJalali($date);
+        if ($gregorian === null || !preg_match('/^(\d{1,2}):(\d{1,2})$/', $time, $m)) {
+            throw new \DomainException('تاریخ شمسی و ساعت را بررسی کنید.');
+        }
+        return $gregorian . 'T' . sprintf('%02d:%02d', (int)$m[1], (int)$m[2]);
     }
 
     public static function localDateToUtc(string $value): string

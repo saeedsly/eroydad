@@ -4,7 +4,7 @@
 > به‌روزرسانی: `node tests/gen-routes-doc.mjs` و کنترل هم‌خوانی: `node tests/gen-routes-doc.mjs --check`.
 > دستی ویرایش نکنید — ویرایش شما با اجرای بعدی بازنویسی می‌شود.
 
-مجموع مسیرها: **96** (مسیرهای عمومی و پنل فراگیر: 43، مسیرهای پنل مدیریت (نقش‌محور): 53).
+مجموع مسیرها: **97** (مسیرهای عمومی و پنل فراگیر: 44، مسیرهای پنل مدیریت (نقش‌محور): 53).
 
 قرارداد: متد فقط `GET` یا `POST` است؛ الگوها با جداکنندهٔ `#…#` (regex PHP) نوشته می‌شوند و بقیه مقایسهٔ دقیق‌اند. ترتیبِ اعلان = ترتیبِ بررسی در زمان اجرا؛ اولین تطبیق برنده است.
 
@@ -16,45 +16,46 @@
 | 2 | `GET` | `/events` | دقیق | صفحهٔ اصلی و فهرست دوره‌ها |
 | 3 | `GET` | `#^/events/([a-z0-9-]+)$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
 | 4 | `POST` | `#^/events/(\d+)/register$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
-| 5 | `GET` | `#^/events/([a-z0-9-]+)/poster$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
-| 6 | `GET` | `#^/preview/([a-f0-9]{16,64})$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
-| 7 | `GET` | `/terms` | دقیق | صفحهٔ اصلی و فهرست دوره‌ها |
-| 8 | `GET` | `/privacy` | دقیق | صفحهٔ اصلی و فهرست دوره‌ها |
-| 9 | `GET` | `/register` | دقیق | احراز هویت |
-| 10 | `POST` | `/register` | دقیق | احراز هویت |
-| 11 | `GET` | `/login` | دقیق | احراز هویت |
-| 12 | `POST` | `/login` | دقیق | احراز هویت |
-| 13 | `POST` | `/logout` | دقیق | احراز هویت |
-| 14 | `GET` | `/account` | دقیق | پنل فراگیر |
-| 15 | `POST` | `#^/account/registrations/(\d+)/cancel$#` | الگو | پنل فراگیر |
-| 16 | `GET` | `/account/calendar.ics` | دقیق | پنل فراگیر |
-| 17 | `GET` | `/notifications` | دقیق | پنل فراگیر |
-| 18 | `POST` | `/notifications/read` | دقیق | پنل فراگیر |
-| 19 | `GET` | `/account/settings` | دقیق | پنل فراگیر |
-| 20 | `POST` | `/account/settings` | دقیق | پنل فراگیر |
-| 21 | `GET` | `/account/organization` | دقیق | پنل فراگیر |
-| 22 | `POST` | `/account/organization` | دقیق | پنل فراگیر |
-| 23 | `GET` | `/account/security` | دقیق | پنل فراگیر |
-| 24 | `POST` | `/account/security/2fa/setup` | دقیق | پنل فراگیر |
-| 25 | `POST` | `/account/security/2fa/enable` | دقیق | پنل فراگیر |
-| 26 | `POST` | `/account/security/2fa/disable` | دقیق | پنل فراگیر |
-| 27 | `POST` | `/account/security/password` | دقیق | پنل فراگیر |
-| 28 | `POST` | `/account/security/logout-all` | دقیق | پنل فراگیر |
-| 29 | `GET` | `/password/reset` | دقیق | پنل فراگیر |
-| 30 | `POST` | `/password/reset` | دقیق | پنل فراگیر |
-| 31 | `GET` | `/account/payments` | دقیق | پرداخت آزمایشی |
-| 32 | `GET` | `#^/payments/(\d+)/sandbox$#` | الگو | پرداخت آزمایشی |
-| 33 | `POST` | `#^/payments/(\d+)/sandbox$#` | الگو | پرداخت آزمایشی |
-| 34 | `GET` | `#^/payments/(\d+)/receipt$#` | الگو | پرداخت آزمایشی |
-| 35 | `GET` | `#^/certificate/([a-f0-9]{16,64})$#` | الگو | گواهی و بازخورد |
-| 36 | `GET` | `#^/feedback/(\d+)$#` | الگو | گواهی و بازخورد |
-| 37 | `POST` | `#^/feedback/(\d+)$#` | الگو | گواهی و بازخورد |
-| 38 | `GET` | `/support` | دقیق | پشتیبانی |
-| 39 | `POST` | `/support` | دقیق | پشتیبانی |
-| 40 | `GET` | `#^/support/(\d+)$#` | الگو | پشتیبانی |
-| 41 | `POST` | `#^/support/(\d+)/reply$#` | الگو | پشتیبانی |
-| 42 | `POST` | `#^/support/(\d+)/rate$#` | الگو | پشتیبانی |
-| 43 | `GET` | `#^/tickets/(\d+)/print$#` | الگو | بلیت |
+| 5 | `POST` | `#^/events/([a-z0-9-]+)/quick-register$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
+| 6 | `GET` | `#^/events/([a-z0-9-]+)/poster$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
+| 7 | `GET` | `#^/preview/([a-f0-9]{16,64})$#` | الگو | صفحهٔ اصلی و فهرست دوره‌ها |
+| 8 | `GET` | `/terms` | دقیق | صفحهٔ اصلی و فهرست دوره‌ها |
+| 9 | `GET` | `/privacy` | دقیق | صفحهٔ اصلی و فهرست دوره‌ها |
+| 10 | `GET` | `/register` | دقیق | احراز هویت |
+| 11 | `POST` | `/register` | دقیق | احراز هویت |
+| 12 | `GET` | `/login` | دقیق | احراز هویت |
+| 13 | `POST` | `/login` | دقیق | احراز هویت |
+| 14 | `POST` | `/logout` | دقیق | احراز هویت |
+| 15 | `GET` | `/account` | دقیق | پنل فراگیر |
+| 16 | `POST` | `#^/account/registrations/(\d+)/cancel$#` | الگو | پنل فراگیر |
+| 17 | `GET` | `/account/calendar.ics` | دقیق | پنل فراگیر |
+| 18 | `GET` | `/notifications` | دقیق | پنل فراگیر |
+| 19 | `POST` | `/notifications/read` | دقیق | پنل فراگیر |
+| 20 | `GET` | `/account/settings` | دقیق | پنل فراگیر |
+| 21 | `POST` | `/account/settings` | دقیق | پنل فراگیر |
+| 22 | `GET` | `/account/organization` | دقیق | پنل فراگیر |
+| 23 | `POST` | `/account/organization` | دقیق | پنل فراگیر |
+| 24 | `GET` | `/account/security` | دقیق | پنل فراگیر |
+| 25 | `POST` | `/account/security/2fa/setup` | دقیق | پنل فراگیر |
+| 26 | `POST` | `/account/security/2fa/enable` | دقیق | پنل فراگیر |
+| 27 | `POST` | `/account/security/2fa/disable` | دقیق | پنل فراگیر |
+| 28 | `POST` | `/account/security/password` | دقیق | پنل فراگیر |
+| 29 | `POST` | `/account/security/logout-all` | دقیق | پنل فراگیر |
+| 30 | `GET` | `/password/reset` | دقیق | پنل فراگیر |
+| 31 | `POST` | `/password/reset` | دقیق | پنل فراگیر |
+| 32 | `GET` | `/account/payments` | دقیق | پرداخت آزمایشی |
+| 33 | `GET` | `#^/payments/(\d+)/sandbox$#` | الگو | پرداخت آزمایشی |
+| 34 | `POST` | `#^/payments/(\d+)/sandbox$#` | الگو | پرداخت آزمایشی |
+| 35 | `GET` | `#^/payments/(\d+)/receipt$#` | الگو | پرداخت آزمایشی |
+| 36 | `GET` | `#^/certificate/([a-f0-9]{16,64})$#` | الگو | گواهی و بازخورد |
+| 37 | `GET` | `#^/feedback/(\d+)$#` | الگو | گواهی و بازخورد |
+| 38 | `POST` | `#^/feedback/(\d+)$#` | الگو | گواهی و بازخورد |
+| 39 | `GET` | `/support` | دقیق | پشتیبانی |
+| 40 | `POST` | `/support` | دقیق | پشتیبانی |
+| 41 | `GET` | `#^/support/(\d+)$#` | الگو | پشتیبانی |
+| 42 | `POST` | `#^/support/(\d+)/reply$#` | الگو | پشتیبانی |
+| 43 | `POST` | `#^/support/(\d+)/rate$#` | الگو | پشتیبانی |
+| 44 | `GET` | `#^/tickets/(\d+)/print$#` | الگو | بلیت |
 
 ## مسیرهای پنل مدیریت (نقش‌محور) (`backend/routes/admin.php`)
 

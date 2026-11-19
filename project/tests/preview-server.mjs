@@ -7,6 +7,7 @@
  */
 import http from 'http';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PHPRequestHandler } from '@php-wasm/universal';
@@ -37,8 +38,16 @@ class CookieJar {
   }
 }
 
-console.log('[preview] booting PHP 7.4 + MariaDB (wasm) ...');
-const env = await createTestEnvironment({ root: ROOT, withSchema: true, baseUrl: BASE_URL });
+// ایزوله‌سازی: پیش‌نمایش روی یک «کپی تازه» از پروژه کار می‌کند تا اجرای آزمون‌ها
+// روی پروژهٔ اصلی (که .env آن را بازنویسی می‌کند) هرگز سایت زنده را از کار نیندازد.
+const APP_COPY = path.join(os.tmpdir(), 'erooydad-preview-app');
+fs.rmSync(APP_COPY, { recursive: true, force: true });
+fs.cpSync(ROOT, APP_COPY, {
+  recursive: true,
+  filter: (src) => !src.includes('node_modules') && !src.includes(`${path.sep}.git`) && !src.endsWith('.env'),
+});
+console.log('[preview] booting PHP 7.4 + MariaDB (wasm) on isolated copy ...');
+const env = await createTestEnvironment({ root: APP_COPY, withSchema: true, baseUrl: BASE_URL });
 
 // ---------- دانه‌گذاری دادهٔ نمایشی با سرویس‌های واقعی ----------
 const seed = await env.php.run({

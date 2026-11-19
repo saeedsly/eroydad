@@ -160,9 +160,10 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
 
   const detail = await req('/events/' + seeded.slug);
   ok('صفحهٔ جزئیات رویداد کد ۲۰۰ می‌دهد', detail.status === 200 && !phpError(detail.text), 'status=' + detail.status);
+  ok('مهمان بدون ورود، فرم ثبت‌نام سریع در صفحهٔ رویداد می‌بیند', detail.text.includes('/quick-register') && detail.text.includes('ثبت‌نام سریع'), detail.text.slice(0, 300));
   ok('صفحهٔ جزئیات، توضیح رویداد را نشان می‌دهد', detail.text.includes('توضیح کامل رویداد'));
   ok('صفحهٔ جزئیات، بخش مبلغ را با حالت رایگان نشان می‌دهد', /رایگان|مبلغ پایه/.test(detail.text), detail.text.slice(0, 300));
-  ok('صفحهٔ رویداد رایگان، کاربر را به ورود فراخوان نمی‌کند وقتی نشست ندارد', /برای رزرو جایگاه، ابتدا وارد حساب/.test(detail.text), detail.text.slice(0, 400));
+  ok('مهمان بدون نشست، دعوت به ثبت‌نام سریع (بدون ورود) می‌شود و فرم عضو نیست', /نیازی به ورود قبلی نیست/.test(detail.text) && !/name="idempotency_key"/.test(detail.text), detail.text.slice(0, 400));
 
   const paidDetail = await req('/events/' + seeded.paid_slug);
   ok('صفحهٔ رویداد پولی کد ۲۰۰ می‌دهد', paidDetail.status === 200 && !phpError(paidDetail.text), 'status=' + paidDetail.status);
@@ -170,7 +171,7 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   ok('ریز مالیات با نرخ هر دوره نمایش داده می‌شود', /مالیات \(10٪\)<\/span><b>25,000 تومان/.test(paidDetail.text));
   ok('پرداخت‌کنندۀ مالیات اعلام می‌شود', paidDetail.text.includes('پرداخت‌کنندهٔ مالیات') && /فراگیر/.test(paidDetail.text));
   ok('جمع پرداختی نهایی درست محاسبه و نمایش داده می‌شود', /جمع پرداختی فراگیر<\/span><b>275,000 تومان/.test(paidDetail.text));
-  ok('صفحهٔ رویداد پولی برای مهمان، دکمۀ «ورود و ثبت‌نام» را نشان می‌دهد', /ورود و ثبت‌نام/.test(paidDetail.text) && !/name="idempotency_key"/.test(paidDetail.text), paidDetail.text.slice(0, 400));
+  ok('صفحهٔ رویداد پولی برای مهمان، فرم ثبت‌نام سریع دارد و فرم عضو نیست', /quick-register/.test(paidDetail.text) && !/name="idempotency_key"/.test(paidDetail.text), paidDetail.text.slice(0, 400));
   ok('پیامک/درگاه واقعی در صفحه اعلام می‌شود', /هیچ وجه واقعی جابه‌جا نمی‌شود/.test(paidDetail.text));
 
   const termsPage = await req('/terms');

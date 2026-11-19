@@ -5,6 +5,8 @@
  *   A) فراگیر: ساخت حساب ← ورود ← ثبت‌نام رایگان ← پنل ← بلیت ← بازخورد ← تیکت پشتیبانی ← لغو
  *   B) پولی: ثبت‌نام ← پرداخت ناموفق ← ادامه ← پرداخت موفق ← رسید SBX ← قطعی‌شدن
  *   C) مدیر: داشبورد ← خروجی XLSX واقعی (بازکردن zip و درستی XML داخل آن) ← گزارش‌ها
+ *   D) مدیر: ساخت دوره فقط با فیلدهای تاریخ شمسی (بدون JS) ← انتشار ← ثبت‌نام فراگیر روی همان دوره
+ *   E) مهمان: لینک رویداد ← فرم ثبت‌نام سریع بدون ورود ← حساب تازه ← پنل (و رد شمارهٔ دارای حساب)
  *
  * اجرا:  node tests/acceptance-run.mjs [مسیر پروژه]
  */
@@ -18,6 +20,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(process.argv[2] || path.join(HERE, '..'));
 
 const failures = [];
+let exitCode = 0;
 function ok(label, condition, detail = '') {
   if (condition) { console.log('PASS  ' + label); return; }
   failures.push(label + (detail ? ' :: ' + detail.slice(0, 220) : ''));
@@ -292,14 +295,129 @@ echo 'SEED ' . json_encode(['sys'=>$sys,'free_id'=>$freeId,'free_slug'=>$freeSlu
   const reports = await req('/admin/reports');
   ok('صفحهٔ گزارش‌ها باز می‌شود', reports.status === 200 && !phpError(reports.text), 'status=' + reports.status);
 
+  // ================= سفر D: ساخت دوره با فیلد تاریخ شمسی (بدون JS) و ثبت‌نام فراگیر =================
+  console.log('--- سفر D: ساخت دوره با تاریخ شمسی ← انتشار ← ثبت‌نام فراگیر ---');
+  const newForm = await req('/admin/events/new');
+  ok('فرم ساخت رویداد برای مدیر باز می‌شود', newForm.status === 200 && !phpError(newForm.text), 'status=' + newForm.status);
+  // عمداً بدون فیلد مخفی starts_at/ends_at: فقط تاریخ شمسیِ قابل‌مشاهده + ساعت (شبیه مرورگری که JS ندارد)
+  const createEvent = await req('/admin/events/new', {
+    method: 'POST',
+    body: {
+      title: 'دورهٔ ساخته‌شده در آزمون پذیرش',
+      summary: 'خلاصهٔ کافی برای قبولی اعتبارسنجی سمت سرور در مسیر ساخت دوره.',
+      description: 'شرح کامل این دوره برای پوشش مسیر ساخت با فیلدهای تاریخ شمسی بدون جاوااسکریپت است.',
+      category: 'آزمون',
+      delivery_mode: 'online',
+      venue: '',
+      capacity: '20',
+      price_toman: '0',
+      tax_percent: '0',
+      tax_payer: 'participant',
+      starts_at: '',
+      ends_at: '',
+      starts_at_date: '۱۴۰۵/۱۲/۱۵',
+      starts_at_time: '10:00',
+      ends_at_date: '۱۴۰۵/۱۲/۱۵',
+      ends_at_time: '12:00',
+      _csrf: csrfOf(newForm.text),
+    },
+  });
+  ok('ساخت دوره فقط با تاریخ شمسی + ساعت (بدون فیلد مخفی JS) موفق است',
+    createEvent.status === 303 && /\/admin\/events\/\d+/.test(createEvent.location || ''),
+    'status=' + createEvent.status + ' loc=' + createEvent.location);
+  const newEventId = /\/admin\/events\/(\d+)/.exec(createEvent.location || '');
+  ok('شناسهٔ دورهٔ تازه از هدایت پاسخ خوانده می‌شود', !!newEventId, createEvent.location || '');
+  const detailNew = await req('/admin/events/' + (newEventId ? newEventId[1] : '0'));
+  ok('صفحهٔ جزئیات دورهٔ تازه باز می‌شود و عنوانش را دارد',
+    detailNew.status === 200 && detailNew.text.includes('دورهٔ ساخته‌شده در آزمون پذیرش') && !phpError(detailNew.text),
+    'status=' + detailNew.status);
+  const publish = await req('/admin/events/' + (newEventId ? newEventId[1] : '0') + '/publish', {
+    method: 'POST',
+    body: { _csrf: csrfOf(detailNew.text) },
+  });
+  ok('انتشار دورهٔ تازه انجام می‌شود (303)', publish.status === 303, 'status=' + publish.status);
+  const newSlugRow = await env.php.run({
+    code: `<?php require '/project/backend/bootstrap.php'; echo 'SLUG ' . db()->query('SELECT slug FROM events WHERE id=' . (int)${newEventId ? newEventId[1] : 0})->fetchColumn();`,
+  });
+  const newSlugText = typeof newSlugRow.text === 'string' ? newSlugRow.text : new TextDecoder().decode(newSlugRow.stdout ?? new Uint8Array());
+  const newSlug = /SLUG ([a-z0-9-]+)/.exec(newSlugText);
+  ok('slug دورهٔ تازه خوانده شد', !!newSlug, newSlugText.slice(0, 200));
+
+  // حالا از دید فراگیر: خروج مدیر، ورود فراگیر، ثبت‌نام روی همان دوره
+  const logout = await req('/logout', { method: 'POST', body: { _csrf: csrfOf(detailNew.text) } });
+  ok('خروج مدیر انجام می‌شود (303)', logout.status === 303, 'status=' + logout.status);
+  const attendeeLoginPage = await req('/login');
+  const attendeeLogin = await req('/login', {
+    method: 'POST',
+    body: { phone: '09120004001', password: 'Journey-Pass-91!', _csrf: csrfOf(attendeeLoginPage.text), next: '' },
+  });
+  ok('ورود فراگیر برای ثبت‌نام روی دورهٔ تازه (303)', attendeeLogin.status === 303 && (attendeeLogin.location || '').includes('/account'),
+    'status=' + attendeeLogin.status + ' loc=' + attendeeLogin.location);
+  const newPublic = await req('/events/' + (newSlug ? newSlug[1] : 'x'));
+  ok('صفحهٔ عمومی دورهٔ تازه برای فراگیر ۲۰۰ می‌دهد',
+    newPublic.status === 200 && newPublic.text.includes('دورهٔ ساخته‌شده در آزمون پذیرش') && !phpError(newPublic.text),
+    'status=' + newPublic.status);
+  const newJoinToken = csrfOf(newPublic.text);
+  const newIdem = /name="idempotency_key" value="([^"]+)"/.exec(newPublic.text);
+  const newJoin = await req('/events/' + (newEventId ? newEventId[1] : '0') + '/register', {
+    method: 'POST',
+    body: { idempotency_key: newIdem ? newIdem[1] : '', _csrf: newJoinToken || '' },
+  });
+  ok('فراگیر می‌تواند روی دورهٔ تازه ثبت‌نام کند (303 → پنل)',
+    newJoin.status === 303 && (newJoin.location || '').includes('/account'),
+    'status=' + newJoin.status + ' loc=' + newJoin.location);
+  const newAccount = await req('/account');
+  ok('نام دورهٔ تازه در پنل فراگیر دیده می‌شود',
+    newAccount.status === 200 && newAccount.text.includes('دورهٔ ساخته‌شده در آزمون پذیرش'),
+    'status=' + newAccount.status);
+
+  // ================= سفر E: ثبت‌نام سریع بدون ورود از لینک رویداد =================
+  console.log('--- سفر E: مهمان ← فرم ثبت‌نام سریع بدون ورود ← تأیید در پنل ---');
+  const logout2 = await req('/logout', { method: 'POST', body: { _csrf: csrfOf(newAccount.text) } });
+  ok('خروج فراگیر برای تست مهمان (303)', logout2.status === 303, 'status=' + logout2.status);
+  const guestEvent = await req('/events/' + (newSlug ? newSlug[1] : 'x'));
+  ok('مهمان فرم ثبت‌نام سریع را در لینک رویداد می‌بیند',
+    guestEvent.status === 200 && guestEvent.text.includes('/quick-register') && guestEvent.text.includes('ثبت‌نام سریع'),
+    'status=' + guestEvent.status);
+  const quickCsrf = csrfOf(guestEvent.text);
+  const quickJoin = await req('/events/' + (newSlug ? newSlug[1] : 'x') + '/quick-register', {
+    method: 'POST',
+    body: { full_name: 'فراگیر سریع', phone: '09120007777', password: 'Quick-Register-91!', _csrf: quickCsrf || '' },
+  });
+  ok('ثبت‌نام سریع مهمان بدون ورود قبلی انجام می‌شود (303 → پنل)',
+    quickJoin.status === 303 && (quickJoin.location || '').includes('/account'),
+    'status=' + quickJoin.status + ' loc=' + quickJoin.location);
+  const quickAccount = await req('/account');
+  ok('پس از ثبت‌نام سریع، دوره در پنل کاربر تازه دیده می‌شود',
+    quickAccount.status === 200 && quickAccount.text.includes('دورهٔ ساخته‌شده در آزمون پذیرش') && quickAccount.text.includes('فراگیر سریع'),
+    'status=' + quickAccount.status);
+
+  // شمارهٔ دارای حساب، با رمز اشتباه پذیرفته نمی‌شود
+  const logout3 = await req('/logout', { method: 'POST', body: { _csrf: csrfOf(quickAccount.text) } });
+  ok('خروج کاربر تازه (303)', logout3.status === 303, 'status=' + logout3.status);
+  const guestAgain = await req('/events/' + (newSlug ? newSlug[1] : 'x'));
+  const dupJoin = await req('/events/' + (newSlug ? newSlug[1] : 'x') + '/quick-register', {
+    method: 'POST',
+    body: { full_name: 'تلاش تکراری', phone: '09120004001', password: 'Wrong-Password-91!', _csrf: csrfOf(guestAgain.text) || '' },
+  });
+  ok('شمارهٔ دارای حساب با رمز اشتباه رد می‌شود و به صفحهٔ رویداد برمی‌گردد',
+    dupJoin.status === 303 && (dupJoin.location || '').includes('/events/'),
+    'status=' + dupJoin.status + ' loc=' + dupJoin.location);
+  const dupBack = await req('/events/' + (newSlug ? newSlug[1] : 'x'));
+  ok('پیام «قبلاً حساب دارد» به کاربر نمایش داده می‌شود',
+    dupBack.text.includes('قبلاً حساب دارد'), dupBack.text.slice(0, 400));
+
   console.log('');
   if (failures.length) {
     console.log('آزمون پذیرش: ' + failures.length + ' ایراد.');
-    process.exit(1);
+    exitCode = 1;
+  } else {
+    console.log('آزمون پذیرش: هر پنج سفر کامل بدون خطا اجرا شد.');
   }
-  console.log('آزمون پذیرش: هر سه سفر کامل بدون خطا اجرا شد.');
-  process.exit(0);
 } catch (error) {
   console.log('آزمون پذیرش با خطا متوقف شد: ' + (error && error.message));
-  process.exit(1);
+  exitCode = 1;
+} finally {
+  await env.close().catch(() => {});
 }
+process.exit(exitCode);

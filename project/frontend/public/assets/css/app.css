@@ -169,3 +169,134 @@ html{font-size:var(--font-scale,100%)}
 [data-theme="dark"] .empty-box{background:#101a14;border-color:#24352b;color:var(--ds-muted)}
 [data-theme="dark"] .recovery-codes li,[data-theme="dark"] .manual-key,[data-theme="dark"] .role-assign-form select{background:#16221b;color:var(--ds-ink)}
 [data-theme="dark"] .chart{border-color:#24352b}
+
+/* ===== Design quality upgrade: motion, depth, hierarchy (skill-informed) ===== */
+:root{
+  --r-sm:9px; --r-md:13px; --r-lg:17px; --r-xl:23px;
+  --sh-1:0 1px 2px rgba(26,61,40,.05),0 5px 14px rgba(26,61,40,.05);
+  --sh-2:0 2px 6px rgba(26,61,40,.06),0 16px 38px rgba(26,61,40,.10);
+  --sh-3:0 10px 24px rgba(26,61,40,.10),0 34px 70px rgba(26,61,40,.15);
+  --ease:cubic-bezier(.2,.7,.2,1); --dur:.22s; --dur-fast:.14s;
+  --ring:0 0 0 3px rgba(35,118,78,.18);
+}
+
+/* --- Sticky header: frosted glass + scroll elevation --- */
+.site-header{background:rgba(255,255,255,.85);backdrop-filter:blur(16px) saturate(1.5);-webkit-backdrop-filter:blur(16px) saturate(1.5);transition:box-shadow var(--dur) var(--ease),background var(--dur) var(--ease)}
+.site-header.is-scrolled{box-shadow:0 8px 26px rgba(26,61,40,.09)}
+
+/* --- Buttons: gradient fill, lift, press, focus ring --- */
+.btn{border-radius:11px;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease),background var(--dur) var(--ease),color var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.btn:hover{transform:translateY(-2px);box-shadow:var(--sh-1)}
+.btn:active{transform:translateY(0) scale(.985);transition-duration:var(--dur-fast)}
+.btn:focus-visible{outline:2px solid var(--ds-primary);outline-offset:2px}
+.btn-primary{background:linear-gradient(135deg,#2c8d5d 0%,#1d6a44 100%);box-shadow:0 6px 16px rgba(35,118,78,.24),inset 0 1px 0 rgba(255,255,255,.20)}
+.btn-primary:hover{background:linear-gradient(135deg,#32a06b 0%,#21724a 100%);box-shadow:0 12px 26px rgba(35,118,78,.32),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn-outline{transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease),background var(--dur) var(--ease),border-color var(--dur) var(--ease),color var(--dur) var(--ease)}
+.btn-outline:hover{border-color:#bfd9c7;box-shadow:var(--sh-1);background:#f3faf5}
+.btn-soft{transition:background var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.btn-soft:hover{background:#e2f1e7;transform:translateY(-1px)}
+.btn-danger:hover{background:#ffe7e5;border-color:#eebdb9}
+.btn-block{position:relative}
+
+/* --- Cards: layered depth, hover elevation, art micro-zoom --- */
+.event-card,.stat-card,.content-card,.signup-card,.auth-card,.notification-item,
+.session-item,.instructor-card,.support-form-card,.support-ticket,.price-box,
+.filter-bar,.table-wrap,.detail-poster,.ticket-print,.empty-box{
+  transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease),border-color var(--dur) var(--ease)
+}
+.event-card{border-radius:var(--r-lg);box-shadow:0 1px 2px rgba(26,61,40,.04)}
+.event-card:hover{transform:translateY(-6px);box-shadow:var(--sh-2);border-color:#d3e6da}
+.event-card:hover .art-symbol{transform:scale(1.07)}
+.art-symbol{transition:transform .5s var(--ease)}
+.event-card:hover .card-link span{transform:translateX(-4px)}
+.card-link span{display:inline-block;transition:transform var(--dur) var(--ease)}
+.stat-card{border-radius:var(--r-md)}
+.stat-card:hover{box-shadow:var(--sh-1);transform:translateY(-2px)}
+.auth-card{border-radius:var(--r-xl);box-shadow:var(--sh-2)}
+.signup-card{border-radius:var(--r-lg);box-shadow:var(--sh-1)}
+.signup-card:hover{box-shadow:var(--sh-2)}
+.content-card,.notification-item,.session-item,.instructor-card{border-radius:var(--r-md)}
+.notification-item:hover,.session-item:hover{border-color:#cfe4d6;box-shadow:var(--sh-1)}
+.table-wrap{border-radius:var(--r-md)}
+.table-wrap:hover{box-shadow:var(--sh-1)}
+
+/* --- Forms: smooth focus glow, hover borders --- */
+.form-stack input,.form-stack textarea,.form-stack select,.field input,.field select{
+  border-radius:10px;transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease),background var(--dur) var(--ease)
+}
+.form-stack input:hover,.form-stack textarea:hover,.form-stack select:hover,
+.field input:hover,.field select:hover{border-color:#bcd3c4}
+.form-stack input:focus,.form-stack textarea:focus,.form-stack select:focus,
+.field input:focus,.field select:focus{
+  border-color:#6fb48b;box-shadow:0 0 0 3px rgba(35,118,78,.15),0 1px 2px rgba(26,61,40,.06)
+}
+
+/* --- Links & nav: slide-in underlines (desktop drawer included) --- */
+.nav-links a{position:relative;transition:color var(--dur) var(--ease)}
+@media(min-width:701px){
+  .nav-links a::after{
+    content:"";position:absolute;right:0;bottom:-6px;left:0;height:2px;border-radius:2px;
+    background:linear-gradient(90deg,#3aa66e,#7ac9a0);transform:scaleX(0);transform-origin:right;
+    transition:transform var(--dur) var(--ease)
+  }
+  .nav-links a:hover::after,.nav-links a:focus-visible::after{transform:scaleX(1)}
+}
+.hero-link,.text-arrow,.card-link,.signup-create,.auth-bottom a,.account-shortcuts a{
+  transition:color var(--dur) var(--ease),transform var(--dur) var(--ease)
+}
+.hero-link:hover,.text-arrow:hover{color:var(--ds-primary-strong)}
+.text-arrow span{display:inline-block;transition:transform var(--dur) var(--ease)}
+.text-arrow:hover span{transform:translateX(-4px)}
+.auth-bottom a:hover,.account-shortcuts a:hover,.signup-create:hover{color:var(--ds-primary-strong)}
+
+/* --- Hero: breathing artwork --- */
+.floating-tag{box-shadow:var(--sh-2);animation:fx-float 5.5s var(--ease) infinite alternate}
+.tag-two{animation-delay:-2.6s}
+.visual-orbit{animation:fx-spin 70s linear infinite}
+.visual-card{box-shadow:var(--sh-3)}
+.about-note{box-shadow:var(--sh-2)}
+@keyframes fx-float{from{transform:translateY(0)}to{transform:translateY(-9px)}}
+@keyframes fx-spin{to{transform:rotate(360deg)}}
+
+/* --- Section chrome polish --- */
+.page-banner{background:linear-gradient(135deg,#f3f8f4 0%,#eef6f0 55%,#e9f3ec 100%)}
+.section-head h1,.section-head h2{transition:color var(--dur) var(--ease)}
+.empty-box{border-radius:var(--r-lg);background:linear-gradient(180deg,#fbfdfb,#f6faf7)}
+.search-form{transition:box-shadow var(--dur) var(--ease),border-color var(--dur) var(--ease)}
+.search-form:focus-within{border-color:#bcd9c6;box-shadow:0 10px 28px rgba(30,67,41,.10)}
+.flash{transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease);box-shadow:var(--sh-1)}
+
+/* --- Reveal on scroll (JS adds .fx-reveal/.fx-in — never without JS) --- */
+.fx-ready .fx-reveal{opacity:0;transform:translateY(18px);transition:opacity .65s var(--ease),transform .65s var(--ease);transition-delay:var(--fx-delay,0ms)}
+.fx-ready .fx-reveal.fx-in{opacity:1;transform:none}
+
+/* --- Slightly larger reading sizes where the old scale felt cramped --- */
+.hero-copy>p{font-size:14px}
+.section-head p,.section-head .muted{font-size:12px}
+.event-card p{font-size:11px}
+.detail-body{font-size:13px}
+.muted{font-size:12px}
+.detail-summary{font-size:14px}
+
+/* --- Dark mode companions for the upgrade layer --- */
+[data-theme="dark"] .site-header{background:rgba(16,26,20,.85)}
+[data-theme="dark"] .btn-primary{background:linear-gradient(135deg,#2f9c69,#1d6a44);box-shadow:0 6px 16px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.10)}
+[data-theme="dark"] .btn-primary:hover{background:linear-gradient(135deg,#38ab74,#21724a)}
+[data-theme="dark"] .btn-outline:hover{background:#16221b;border-color:#3c5546;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+[data-theme="dark"] .event-card:hover,[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .notification-item:hover,[data-theme="dark"] .session-item:hover,
+[data-theme="dark"] .signup-card:hover,[data-theme="dark"] .table-wrap:hover{border-color:#34503f;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+[data-theme="dark"] .page-banner{background:linear-gradient(135deg,#101a14,#132019 55%,#16241d)}
+[data-theme="dark"] .form-stack input:focus,[data-theme="dark"] .form-stack textarea:focus,
+[data-theme="dark"] .form-stack select:focus,[data-theme="dark"] .field input:focus,
+[data-theme="dark"] .field select:focus{border-color:#3f8f63;box-shadow:0 0 0 3px rgba(95,189,139,.18)}
+[data-theme="dark"] .empty-box{background:linear-gradient(180deg,#101a14,#0e1712)}
+[data-theme="dark"] .search-form:focus-within{border-color:#34503f;box-shadow:0 10px 28px rgba(0,0,0,.35)}
+
+/* --- Reduced motion: honor the OS setting everywhere --- */
+@media(prefers-reduced-motion:reduce){
+  .floating-tag,.visual-orbit{animation:none!important}
+  .fx-ready .fx-reveal{opacity:1!important;transform:none!important;transition:none!important}
+  .btn,.event-card,.stat-card,.form-stack input,.nav-links a::after{transition:none!important}
+  html{scroll-behavior:auto}
+}

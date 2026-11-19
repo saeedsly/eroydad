@@ -69,10 +69,20 @@ $seat = $seat ?? null;
         <div class="free-label">رایگان</div>
       <?php endif; ?>
       <h2>ثبت‌نام در رویداد</h2>
+      <?php
+      // فرم ثبت‌نام سریع برای مهمان: از خودِ لینک رویداد، بدون نیاز به ورود قبلی.
+      $quickForm = '<form method="post" action="/events/' . h($event['slug']) . '/quick-register" class="quick-signup-form">'
+          . csrfField()
+          . '<label>نام و نام خانوادگی<input name="full_name" required minlength="2" maxlength="160" autocomplete="name"></label>'
+          . '<label>شماره موبایل<input name="phone" required inputmode="tel" autocomplete="tel" placeholder="09121234567" dir="ltr"></label>'
+          . '<label>رمز عبور برای ورودهای بعدی<input type="password" name="password" required minlength="12" maxlength="200" autocomplete="new-password"><small>دست‌کم ۱۲ نویسه؛ همین را بعداً برای ورود نگه دارید.</small></label>'
+          . '<button class="btn btn-primary btn-block" type="submit">' . ($isFull ? 'ثبت‌نام سریع در فهرست انتظار' : ($price > 0 ? 'ثبت‌نام سریع و پرداخت آزمایشی' : 'ثبت‌نام سریع')) . ' <span>←</span></button>'
+          . '</form>';
+      ?>
       <?php if ($user): ?>
         <p>ثبت‌نام با حساب «<?= h($user['full_name']) ?>» انجام می‌شود<?php if ($price > 0): ?> و پس از آن پرداخت آزمایشی دارید<?php endif; ?>.</p>
       <?php else: ?>
-        <p>برای رزرو جایگاه، ابتدا وارد حساب خود شوید یا حساب جدید بسازید.</p>
+        <p>فیلدها را پر کنید و ثبت‌نام کنید — نیازی به ورود قبلی نیست؛ حساب همین‌جا ساخته می‌شود.</p>
       <?php endif; ?>
       <?php if ($preview): ?>
         <div class="disabled-note">در حالت پیش‌نمایش، ثبت‌نام فعال نیست.</div>
@@ -81,7 +91,8 @@ $seat = $seat ?? null;
         <?php if ($user): ?>
           <form method="post" action="/events/<?= (int)$event['id'] ?>/register"><?= csrfField() ?><input type="hidden" name="idempotency_key" value="<?= h(\Eroydad\Registration\RegistrationService::uuidV4()) ?>"><button class="btn btn-primary btn-block" type="submit">ورود به فهرست انتظار <span>←</span></button></form>
         <?php else: ?>
-          <a class="btn btn-primary btn-block" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">ورود و ثبت‌نام</a>
+          <?= $quickForm ?>
+          <a class="signup-create" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">قبلاً حساب دارید؟ ورود</a>
         <?php endif; ?>
       <?php elseif ($user && $seat): ?>
         <div class="locked-field">
@@ -107,8 +118,8 @@ $seat = $seat ?? null;
       <?php elseif ($user): ?>
         <form method="post" action="/events/<?= (int)$event['id'] ?>/register"><?= csrfField() ?><input type="hidden" name="idempotency_key" value="<?= h(\Eroydad\Registration\RegistrationService::uuidV4()) ?>"><button class="btn btn-primary btn-block" type="submit"><?= $price > 0 ? 'ثبت‌نام و پرداخت آزمایشی' : 'ثبت‌نام' ?> <span>←</span></button></form>
       <?php else: ?>
-        <a class="btn btn-primary btn-block" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">ورود و ثبت‌نام</a>
-        <a class="signup-create" href="/register">حساب ندارید؟ ساخت حساب</a>
+        <?= $quickForm ?>
+        <a class="signup-create" href="/login?next=<?= rawurlencode('/events/'.$event['slug']) ?>">قبلاً حساب دارید؟ ورود</a>
       <?php endif; ?>
     </aside>
   </div>

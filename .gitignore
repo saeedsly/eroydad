@@ -1,0 +1,21 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node/build outputs for the planned application layer
+node_modules/
+.next/
+dist/
+build/
+coverage/
+
+# Local tooling and logs
+.DS_Store
+*.log
+.supabase/
+
+# Local skill reference libraries (not part of the deliverable)
+.skills/

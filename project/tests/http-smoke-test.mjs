@@ -14,6 +14,7 @@
 import { PHP, PHPRequestHandler } from '@php-wasm/universal';
 import { createTestEnvironment } from './support/harness.mjs';
 import path from 'path';
+import { readFileSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -434,6 +435,86 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
     ok('فهرست تیکت‌ها با فیلتر وضعیت باز می‌شود', supportFiltered.status === 200 && !phpError(supportFiltered.text), 'status=' + supportFiltered.status);
     ok('منوی مدیر برای مدیر سامانه، بخش کاربران را نشان می‌دهد', (await req('/admin')).text.includes('/admin/users'), 'nav');
   }
+  // ---------- یکپارچگی پیوندها: هر href/src/action باید مسیر ثبت‌شدۀ برنامه باشد ----------
+  const routesSource = ['web.php', 'admin.php']
+    .map((f) => readFileSync(path.join(ROOT, 'backend', 'routes', f), 'utf8'))
+    .join('\n');
+  const routes = { GET: [], POST: [] };
+  for (const line of routesSource.split('\n')) {
+    const meth = /\$method === '(GET|POST)'/.exec(line);
+    if (!meth) continue;
+    for (const exact of line.matchAll(/\$path === '([^']+)'/g)) routes[meth[1]].push({ path: exact[1] });
+    for (const rx of line.matchAll(/preg_match\(\s*'(#[^']+)'/g)) {
+      const body = rx[1].slice(1, -1);
+      try { routes[meth[1]].push({ re: new RegExp(body) }); } catch (e) { /* الگوی نامعمول */ }
+    }
+  }
+  ok('جدول مسیرها از فایل‌های route خوانده می‌شود', routes.GET.length > 15 && routes.POST.length > 20, 'GET=' + routes.GET.length + ' POST=' + routes.POST.length);
+  const isRouted = (target, method) => routes[method].some((r) => (r.re ? r.re.test(target) : r.path === target));
+  const publicDir = path.join(ROOT, 'frontend', 'public');
+
+  // صفحۀ ۴۰۴ و صفحۀ خطا خودشان هم باید درست سرو شوند؛ این‌ها را کنار می‌گذاریم
+  const pagesToScan = new Map();
+  // صفحه‌های بخش «نصب زیرپوشه» عمداً بیرون‌اند: پیوندهای آن‌ها پیشوند /erooydad دارد و
+  // سروشان از فرانت‌کنترل اصلی انتظار نمی‌رود؛ همان‌ها را بند PWA با subHandler می‌سنجد.
+  const SUB_PREFIX = '/erooydad';
+  for (const [url, info] of seen) {
+    const pageUrl = url.split('?')[0];
+    if (pageUrl === SUB_PREFIX || pageUrl.startsWith(SUB_PREFIX + '/')) continue;
+    if (info.status === 200 && /<!DOCTYPE|<html/i.test(info.text)) pagesToScan.set(pageUrl, info.text);
+  }
+  // هر مسیر GET بدون پارامتر هم خزیده می‌شود تا پیوندهای کم‌بازدید هم بررسی شوند
+  for (const r of routes.GET) {
+    if (!r.path || r.path.includes('.')) continue;
+    if (pagesToScan.has(r.path)) continue;
+    const extra = await req(r.path);
+    if (extra.status === 200 && /<!DOCTYPE|<html/i.test(extra.text)) pagesToScan.set(r.path, extra.text);
+  }
+  ok('خزنده، چند صفحه پیدا می‌کند', pagesToScan.size >= 12, 'pages=' + pagesToScan.size);
+
+  const normalize = (raw, pagePath) => {
+    if (!raw || /^(https?:|mailto:|tel:|data:|javascript:|#)/i.test(raw)) return null;
+    let target = raw.split('#')[0].split('?')[0];
+    if (target === '') return null;
+    if (!target.startsWith('/')) {
+      const base = pagePath.includes('.') ? pagePath.slice(0, pagePath.lastIndexOf('/') + 1) : pagePath.replace(/[^/]*$/, '');
+      target = path.posix.normalize(base + '/' + target);
+    }
+    try { target = decodeURIComponent(target); } catch (e) { /* مسیر خام */ }
+    return '/' + target.replace(/^\/+/, '').replace(/\/+$/, '');
+  };
+  const unresolved = new Set();
+  for (const [pagePath, html] of pagesToScan) {
+    const found = [];
+    for (const m of html.matchAll(/(?:href|src)\s*=\s*"([^"]+)"/g)) found.push({ target: m[1], kind: 'GET' });
+    for (const m of html.matchAll(/<form\b[^>]*>/gi)) {
+      const tag = m[0];
+      const action = /action\s*=\s*"([^"]*)"/.exec(tag);
+      if (!action) continue;
+      const isPost = /method\s*=\s*["']?post/i.test(tag);
+      found.push({ target: action[1], kind: isPost ? 'POST' : 'GET' });
+    }
+    for (const item of found) {
+      const target = normalize(item.target, pagePath);
+      if (!target) continue;
+      if (isRouted(target, 'GET') || isRouted(target, item.kind)) continue;
+      if (existsSync(path.join(publicDir, target.replace(/^\//, '')))) continue;
+      unresolved.add(item.kind + ' ' + target + '  ←  ' + pagePath);
+    }
+  }
+  ok('هیچ پیوند یا فرمی به مسیر ثبت‌نشده اشاره نمی‌کند', unresolved.size === 0, [...unresolved].join(' | '));
+
+  // پیوندهای لنگری (anchor) باید به قطعه‌ای در همان صفحه برسند
+  const brokenAnchors = new Set();
+  for (const [pagePath, html] of pagesToScan) {
+    const ids = new Set([...html.matchAll(/\sid\s*=\s*"([^"]+)"/g)].map((m) => m[1]));
+    for (const m of html.matchAll(/href\s*=\s*"#([^"]+)"/g)) {
+      if (!ids.has(m[1])) brokenAnchors.add(pagePath + ' #' + m[1]);
+    }
+  }
+  ok('لنگرهای درون‌صفحه‌ای به قطعهٔ موجود اشاره می‌کنند', brokenAnchors.size === 0, [...brokenAnchors].join(' | '));
+
+  console.log('بررسی‌شدۀ خزنده: ' + pagesToScan.size + ' صفحه');
 } catch (error) {
   failures.push('آزمون با خطا متوقف شد: ' + (error && error.message));
   console.error(error);

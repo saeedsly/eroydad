@@ -440,13 +440,17 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
     .map((f) => readFileSync(path.join(ROOT, 'backend', 'routes', f), 'utf8'))
     .join('\n');
   const routes = { GET: [], POST: [] };
+  // خطوط اعلانی جدول مسیرها: route('GET', '/path' …) یا route('POST', '#regex#' …)
+  // در رشته‌های تک‌نقلی‌ای PHP فقط دو کاراکتر \\ و \' تفسیر می‌شوند؛ الگوها همان‌ها را دارند.
+  const phpSingleQuote = (raw) => raw.replace(/\\([\\'])/g, '$1');
   for (const line of routesSource.split('\n')) {
-    const meth = /\$method === '(GET|POST)'/.exec(line);
-    if (!meth) continue;
-    for (const exact of line.matchAll(/\$path === '([^']+)'/g)) routes[meth[1]].push({ path: exact[1] });
-    for (const rx of line.matchAll(/preg_match\(\s*'(#[^']+)'/g)) {
-      const body = rx[1].slice(1, -1);
-      try { routes[meth[1]].push({ re: new RegExp(body) }); } catch (e) { /* الگوی نامعمول */ }
+    for (const decl of line.matchAll(/route\(\s*'(GET|POST)'\s*,\s*'([^']+)'/g)) {
+      const body = phpSingleQuote(decl[2]);
+      if (body.startsWith('#') && body.endsWith('#')) {
+        try { routes[decl[1]].push({ re: new RegExp(body.slice(1, -1)) }); } catch (e) { /* الگوی نامعمول */ }
+      } else {
+        routes[decl[1]].push({ path: body });
+      }
     }
   }
   ok('جدول مسیرها از فایل‌های route خوانده می‌شود', routes.GET.length > 15 && routes.POST.length > 20, 'GET=' + routes.GET.length + ' POST=' + routes.POST.length);

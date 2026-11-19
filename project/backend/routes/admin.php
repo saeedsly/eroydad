@@ -28,7 +28,7 @@ use Eroydad\Support\SupportDeskService;
 $isSystemAdmin = static function (array $user): bool { return hasRole($user, 'system_admin'); };
 
 // ---------- نمای کلی ----------
-if ($method === 'GET' && $path === '/admin') {
+if (route('GET', '/admin', $method, $path)) {
     $user = requireRole('event_admin','system_admin');
     $reports = new ReportService(db());
     $trend = $reports->registrationTrend(0, 0);
@@ -50,14 +50,14 @@ if ($method === 'GET' && $path === '/admin') {
 }
 
 // ---------- رویدادها ----------
-if ($method === 'GET' && $path === '/admin/events') {
+if (route('GET', '/admin/events', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     render('admin/events',['title'=>'مدیریت رویدادها','events'=>$events->allForAdmin((int)$user['id'],hasRole($user,'system_admin'))]); exit;
 }
-if ($method === 'GET' && $path === '/admin/events/new') {
+if (route('GET', '/admin/events/new', $method, $path)) {
     requireRole('event_admin','system_admin'); render('admin/event-form',['title'=>'ساخت رویداد']); exit;
 }
-if ($method === 'POST' && $path === '/admin/events/new') {
+if (route('POST', '/admin/events/new', $method, $path)) {
     $user = requireRole('event_admin','system_admin');
     try {
         $id=$events->create((int)$user['id'],$_POST);
@@ -68,14 +68,14 @@ if ($method === 'POST' && $path === '/admin/events/new') {
     }
     catch (DomainException $e) { setFlash('error',$e->getMessage()); redirect('/admin/events/new'); }
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/edit$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)/edit$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if (!$event || !in_array($event['status'],['draft','published'],true)) { http_response_code(404); render('error',['title'=>'قابل ویرایش نیست','message'=>'رویداد پیدا نشد یا قابل ویرایش نیست.']); exit; }
     $content = new EventContentService(db());
     render('admin/event-form',['title'=>'ویرایش رویداد','event'=>$event,'tags'=>$content->tags((int)$event['id'])]); exit;
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/edit$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/edit$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $events->update((int)$m[1],(int)$user['id'],$_POST,hasRole($user,'system_admin'));
@@ -86,7 +86,7 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/edit$#',$path,$m)) {
     catch (DomainException $e) { setFlash('error',$e->getMessage()); redirect('/admin/events/' . (int)$m[1] . '/edit'); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)$#', $method, $path, $m)) {
     $id=(int)$m[1];
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin($id,(int)$user['id'],hasRole($user,'system_admin'));
@@ -110,19 +110,19 @@ if ($method === 'GET' && preg_match('#^/admin/events/(\d+)$#',$path,$m)) {
     ]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/publish$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/publish$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try { $events->publish((int)$m[1],(int)$user['id'],hasRole($user,'system_admin')); setFlash('success','رویداد منتشر شد.'); }
     catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/cancel$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/cancel$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try { $events->cancel((int)$m[1],(int)$user['id'],hasRole($user,'system_admin')); setFlash('success','رویداد لغو شد.'); }
     catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/poster$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/poster$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
@@ -134,7 +134,7 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/poster$#',$path,$m))
     catch (Throwable $e) { setFlash('error','ذخیرهٔ پوستر ناموفق بود.'); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/poster/delete$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/poster/delete$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
@@ -144,7 +144,7 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/poster/delete$#',$pa
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/sessions$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/sessions$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
@@ -154,13 +154,13 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/sessions$#',$path,$m
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/sessions/(\d+)/delete$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/sessions/(\d+)/delete$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if ($event) { (new EventContentService(db()))->deleteSession((int)$m[2],(int)$m[1]); setFlash('success','جلسه حذف شد.'); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/attachments$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/attachments$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
@@ -171,13 +171,13 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/attachments$#',$path
     catch (Throwable $e) { setFlash('error','افزودن پیوست ناموفق بود.'); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/attachments/(\d+)/delete$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/attachments/(\d+)/delete$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if ($event) { (new EventContentService(db()))->deleteAttachment((int)$m[2],(int)$m[1]); setFlash('success','پیوست حذف شد.'); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/attendees/(\d+)/cancel$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/attendees/(\d+)/cancel$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if (!$event) { http_response_code(404); render('error',['title'=>'رویداد پیدا نشد','message'=>'رویداد پیدا نشد.']); exit; }
@@ -192,7 +192,7 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/attendees/(\d+)/canc
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/events/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/certificates$#',$path,$m)) {
+if (route('POST', '#^/admin/events/(\d+)/certificates$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if (!$event) { http_response_code(404); render('error',['title'=>'رویداد پیدا نشد','message'=>'رویداد پیدا نشد.']); exit; }
@@ -200,7 +200,7 @@ if ($method === 'POST' && preg_match('#^/admin/events/(\d+)/certificates$#',$pat
     setFlash('success',$count . ' گواهی صادر شد.');
     redirect('/admin/events/' . (int)$m[1] . '/certificates/print');
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/certificates/print$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)/certificates/print$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if (!$event) { http_response_code(404); render('error',['title'=>'رویداد پیدا نشد','message'=>'رویداد پیدا نشد.']); exit; }
@@ -209,14 +209,14 @@ if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/certificates/print$#'
     render('admin/certificates-print',['title'=>'چاپ گروهی گواهی','event'=>$event,'certificates'=>$stmt->fetchAll()]);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/live-count\.json$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)/live-count\.json$#', $method, $path, $m)) {
     requireRole('event_admin','system_admin');
     header('Content-Type: application/json; charset=utf-8');
     header('Cache-Control: no-store');
     echo json_encode($events->liveCount((int)$m[1]), JSON_UNESCAPED_UNICODE);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/attendees\.csv$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)/attendees\.csv$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin'); $isSystemAdmin=hasRole($user,'system_admin');
     if(!$events->forAdmin((int)$m[1],(int)$user['id'],$isSystemAdmin)){http_response_code(404);render('error',['title'=>'رویداد پیدا نشد','message'=>'رویداد پیدا نشد.']);exit;}
     $rows=$events->attendees((int)$m[1],(int)$user['id'],$isSystemAdmin);
@@ -227,7 +227,7 @@ if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/attendees\.csv$#',$pa
     foreach($rows as $r) fputcsv($out,[csvSafe($r['full_name']),csvSafe($r['phone']),$r['account_type']==='municipal'?'کارمند شهرداری':'عمومی',$r['registered_at'],$r['checked_at']]);
     fclose($out); exit;
 }
-if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/finance$#',$path,$m)) {
+if (route('GET', '#^/admin/events/(\d+)/finance$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $event=$events->forAdmin((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
     if (!$event) { http_response_code(404); render('error',['title'=>'رویداد پیدا نشد','message'=>'رویداد پیدا نشد.']); exit; }
@@ -237,7 +237,7 @@ if ($method === 'GET' && preg_match('#^/admin/events/(\d+)/finance$#',$path,$m))
 }
 
 // ---------- خروجی‌های Excel ----------
-if ($method === 'GET' && preg_match('#^/admin/exports/([a-z]+)\.xlsx$#',$path,$m)) {
+if (route('GET', '#^/admin/exports/([a-z]+)\.xlsx$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     $type=$m[1];
     $export=new ExportService(db());
@@ -282,12 +282,12 @@ if ($method === 'GET' && preg_match('#^/admin/exports/([a-z]+)\.xlsx$#',$path,$m
 }
 
 // ---------- ورود اطلاعات ----------
-if ($method === 'GET' && $path === '/admin/import') {
+if (route('GET', '/admin/import', $method, $path)) {
     requireRole('event_admin','system_admin');
     render('admin/import',['title'=>'ورود اطلاعات','events'=>$events->allForAdmin((int)requireAuth()['id'],$isSystemAdmin(requireAuth()))]);
     exit;
 }
-if ($method === 'POST' && $path === '/admin/import/preview') {
+if (route('POST', '/admin/import/preview', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $target=(string)($_POST['target'] ?? 'attendees');
@@ -301,7 +301,7 @@ if ($method === 'POST' && $path === '/admin/import/preview') {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); redirect('/admin/import'); }
     exit;
 }
-if ($method === 'POST' && $path === '/admin/import/commit') {
+if (route('POST', '/admin/import/commit', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $target=(string)($_POST['target'] ?? 'attendees');
@@ -330,7 +330,7 @@ if ($method === 'POST' && $path === '/admin/import/commit') {
 }
 
 // ---------- گزارش‌ها ----------
-if ($method === 'GET' && $path === '/admin/reports') {
+if (route('GET', '/admin/reports', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     $reports=new ReportService(db());
     $from=trim((string)($_GET['from'] ?? gmdate('Y-m-d', strtotime('-30 days'))));
@@ -347,13 +347,13 @@ if ($method === 'GET' && $path === '/admin/reports') {
     ]);
     exit;
 }
-if ($method === 'GET' && $path === '/admin/reports/checkin') {
+if (route('GET', '/admin/reports/checkin', $method, $path)) {
     requireRole('event_admin','system_admin');
     $reports=new ReportService(db());
     render('admin/checkin-report',['title'=>'گزارش کنترل ورود','rows'=>$reports->checkinReport(['event_id'=>(int)($_GET['event_id']??0),'q'=>(string)($_GET['q']??'')],500),'event_options'=>$reports->eventOptions(),'filters'=>['event_id'=>(int)($_GET['event_id']??0),'q'=>(string)($_GET['q']??'')]]);
     exit;
 }
-if ($method === 'GET' && $path === '/admin/rate-limits') {
+if (route('GET', '/admin/rate-limits', $method, $path)) {
     requireRole('system_admin');
     $login=(int)db()->query("SELECT COUNT(*) FROM login_attempts WHERE attempted_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)")->fetchColumn();
     $failed=(int)db()->query("SELECT COUNT(*) FROM login_attempts WHERE was_successful=0 AND attempted_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)")->fetchColumn();
@@ -364,12 +364,12 @@ if ($method === 'GET' && $path === '/admin/rate-limits') {
 }
 
 // ---------- نقش‌ها، مجوزها و کاربران ----------
-if ($method === 'GET' && $path === '/admin/roles') {
+if (route('GET', '/admin/roles', $method, $path)) {
     requireRole('system_admin');
     render('admin/roles',['title'=>'ماتریس نقش و مجوز','matrix'=>(new RoleService(db()))->matrix()]);
     exit;
 }
-if ($method === 'POST' && $path === '/admin/roles') {
+if (route('POST', '/admin/roles', $method, $path)) {
     $user=requireRole('system_admin');
     try {
         $service=new RoleService(db());
@@ -378,19 +378,19 @@ if ($method === 'POST' && $path === '/admin/roles') {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/roles');
 }
-if ($method === 'POST' && $path === '/admin/roles/reset') {
+if (route('POST', '/admin/roles/reset', $method, $path)) {
     $user=requireRole('system_admin');
     $count=(new RoleService(db()))->resetToDefaults((int)$user['id']);
     setFlash('success','نگاشت پیش‌فرض مجوزها بازیابی شد ('.$count.' مورد).');
     redirect('/admin/roles');
 }
-if ($method === 'GET' && $path === '/admin/users') {
+if (route('GET', '/admin/users', $method, $path)) {
     $user=requireRole('system_admin');
     $administration=new AdministrationService(db());
     render('admin/users',['title'=>'مدیریت کاربران','users'=>$administration->users(),'user'=>$user,'roles'=>(new RoleService(db()))->roles(),'role_users'=>(new RoleService(db()))->userRoles()]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/admin/users/(\d+)/(suspend|activate)$#',$path,$m)) {
+if (route('POST', '#^/admin/users/(\d+)/(suspend|activate)$#', $method, $path, $m)) {
     $user=requireRole('system_admin');
     $administration=new AdministrationService(db());
     try {
@@ -399,7 +399,7 @@ if ($method === 'POST' && preg_match('#^/admin/users/(\d+)/(suspend|activate)$#'
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/users');
 }
-if ($method === 'POST' && preg_match('#^/admin/users/(\d+)/role$#',$path,$m)) {
+if (route('POST', '#^/admin/users/(\d+)/role$#', $method, $path, $m)) {
     $user=requireRole('system_admin');
     try {
         (new RoleService(db()))->assignRole((int)$m[1],(string)($_POST['role'] ?? ''),!empty($_POST['grant']),(int)$user['id']);
@@ -407,13 +407,13 @@ if ($method === 'POST' && preg_match('#^/admin/users/(\d+)/role$#',$path,$m)) {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/users');
 }
-if ($method === 'GET' && $path === '/admin/sessions') {
+if (route('GET', '/admin/sessions', $method, $path)) {
     requireRole('system_admin');
     $stmt=db()->query('SELECT s.id, s.user_id, u.full_name, u.phone, s.ip, s.user_agent, s.created_at, s.last_seen_at, s.revoked_at FROM user_sessions s JOIN users u ON u.id=s.user_id ORDER BY s.id DESC LIMIT 200');
     render('admin/sessions',['title'=>'نشست‌های فعال','sessions'=>$stmt->fetchAll()]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/admin/sessions/(\d+)/revoke$#',$path,$m)) {
+if (route('POST', '#^/admin/sessions/(\d+)/revoke$#', $method, $path, $m)) {
     $user=requireRole('system_admin');
     $sessions=new SessionService(db());
     $stmt=db()->prepare('SELECT user_id FROM user_sessions WHERE id=?');
@@ -422,12 +422,12 @@ if ($method === 'POST' && preg_match('#^/admin/sessions/(\d+)/revoke$#',$path,$m
     if ($owner>0) { $sessions->revoke((int)$m[1],$owner); setFlash('success','نشست باطل شد.'); }
     redirect('/admin/sessions');
 }
-if ($method === 'GET' && $path === '/admin/password-resets') {
+if (route('GET', '/admin/password-resets', $method, $path)) {
     requireRole('system_admin');
     render('admin/password-resets',['title'=>'کدهای بازیابی رمز','pending'=>(new PasswordResetService(db()))->listPending()]);
     exit;
 }
-if ($method === 'POST' && $path === '/admin/password-resets') {
+if (route('POST', '/admin/password-resets', $method, $path)) {
     $user=requireRole('system_admin');
     try {
         $result=(new PasswordResetService(db()))->generate((int)($_POST['user_id'] ?? 0),(int)$user['id'],(int)($_POST['minutes'] ?? 60));
@@ -437,7 +437,7 @@ if ($method === 'POST' && $path === '/admin/password-resets') {
 }
 
 // ---------- گزارش فعالیت ----------
-if ($method === 'GET' && $path === '/admin/audit') {
+if (route('GET', '/admin/audit', $method, $path)) {
     requireRole('system_admin');
     $audit=new AuditService(db());
     $filters=['action'=>trim((string)($_GET['action']??'')),'entity'=>trim((string)($_GET['entity']??'')),'q'=>trim((string)($_GET['q']??'')),'from'=>trim((string)($_GET['from']??'')),'to'=>trim((string)($_GET['to']??''))];
@@ -446,19 +446,19 @@ if ($method === 'GET' && $path === '/admin/audit') {
 }
 
 // ---------- کنترل ورود ----------
-if ($method === 'GET' && $path === '/admin/check-in') {
+if (route('GET', '/admin/check-in', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     $options=(new ReportService(db()))->eventOptions();
     render('admin/checkin',['title'=>'کنترل ورود','events'=>$options,'tickets'=>$tickets->forEvent((int)($_GET['event_id']??0))]);
     exit;
 }
-if ($method === 'POST' && $path === '/admin/check-in') {
+if (route('POST', '/admin/check-in', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     try { if(isset($_SERVER['CONTENT_LENGTH'])&&(int)$_SERVER['CONTENT_LENGTH']>16384) throw new DomainException('درخواست بیش از اندازه بزرگ است.'); $result=$tickets->checkIn((string)($_POST['ticket_token'] ?? ''),(int)$user['id'],hasRole($user,'system_admin'),'online'); setFlash('success','ورود مجاز — ' . $result['event']); }
     catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/check-in' . (isset($_POST['event_id']) && $_POST['event_id']!=='' ? '?event_id=' . (int)$_POST['event_id'] : ''));
 }
-if ($method === 'POST' && $path === '/admin/check-in/sync') {
+if (route('POST', '/admin/check-in/sync', $method, $path)) {
     $user=requireRole('event_admin','system_admin');
     $items=json_decode((string)($_POST['queue'] ?? '[]'),true);
     $ok=0; $failed=[]; $results=[];
@@ -488,7 +488,7 @@ if ($method === 'POST' && $path === '/admin/check-in/sync') {
     setFlash($failed===[]?'success':'error','همگام‌سازی صف آزمایشی آفلاین: '.$ok.' مورد ثبت شد' . ($failed===[]?'':'، '.count($failed).' مورد ناموفق بود.'));
     redirect('/admin/check-in');
 }
-if ($method === 'POST' && preg_match('#^/admin/tickets/(\d+)/reissue$#',$path,$m)) {
+if (route('POST', '#^/admin/tickets/(\d+)/reissue$#', $method, $path, $m)) {
     $user=requireRole('event_admin','system_admin');
     try {
         $result=$tickets->reissue((int)$m[1],(int)$user['id'],hasRole($user,'system_admin'));
@@ -498,13 +498,13 @@ if ($method === 'POST' && preg_match('#^/admin/tickets/(\d+)/reissue$#',$path,$m
 }
 
 // ---------- پشتیبانی ----------
-if ($method === 'GET' && $path === '/admin/support') {
+if (route('GET', '/admin/support', $method, $path)) {
     requireRole('support','event_admin','system_admin');
     $desk=new SupportDeskService(db());
     $filters=['status'=>trim((string)($_GET['status']??'')),'priority'=>trim((string)($_GET['priority']??'')),'q'=>trim((string)($_GET['q']??'')),'assigned'=>trim((string)($_GET['assigned']??''))];
     render('admin/support',['title'=>'تیکت‌های پشتیبانی','tickets'=>$desk->listTickets($filters),'filters'=>$filters,'labels'=>$desk->labels(),'assignees'=>$desk->assignees()]); exit;
 }
-if ($method === 'GET' && preg_match('#^/admin/support/(\d+)$#',$path,$m)) {
+if (route('GET', '#^/admin/support/(\d+)$#', $method, $path, $m)) {
     $user=requireRole('support','event_admin','system_admin');
     try { $messages=$support->messages((int)$m[1],(int)$user['id'],true); }
     catch (DomainException $e) { http_response_code(404); render('error',['title'=>'تیکت پیدا نشد','message'=>$e->getMessage()]); exit; }
@@ -513,7 +513,7 @@ if ($method === 'GET' && preg_match('#^/admin/support/(\d+)$#',$path,$m)) {
     $stmt->execute([(int)$m[1]]);
     render('admin/support-detail',['title'=>'پاسخ‌گویی به تیکت','ticketId'=>(int)$m[1],'messages'=>$messages,'ticket'=>$stmt->fetch() ?: [],'labels'=>$desk->labels(),'ticket_labels'=>$desk->ticketLabels((int)$m[1]),'canned'=>$desk->cannedResponses(),'assignees'=>$desk->assignees()]); exit;
 }
-if ($method === 'POST' && preg_match('#^/admin/support/(\d+)/reply$#',$path,$m)) {
+if (route('POST', '#^/admin/support/(\d+)/reply$#', $method, $path, $m)) {
     $user=requireRole('support','event_admin','system_admin');
     try {
         $support->reply((int)$m[1],(int)$user['id'],(string)($_POST['body'] ?? ''),true);
@@ -523,7 +523,7 @@ if ($method === 'POST' && preg_match('#^/admin/support/(\d+)/reply$#',$path,$m))
     catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/admin/support/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/admin/support/(\d+)/(priority|assign|status|label|canned)$#',$path,$m)) {
+if (route('POST', '#^/admin/support/(\d+)/(priority|assign|status|label|canned)$#', $method, $path, $m)) {
     $user=requireRole('support','event_admin','system_admin');
     $desk=new SupportDeskService(db());
     try {
@@ -540,11 +540,11 @@ if ($method === 'POST' && preg_match('#^/admin/support/(\d+)/(priority|assign|st
 }
 
 // ---------- کارکنان ----------
-if ($method === 'GET' && $path === '/admin/employees') {
+if (route('GET', '/admin/employees', $method, $path)) {
     requireRole('system_admin');
     render('admin/employees',['title'=>'فهرست کارکنان']); exit;
 }
-if ($method === 'POST' && $path === '/admin/employees/import') {
+if (route('POST', '/admin/employees/import', $method, $path)) {
     $user=requireRole('system_admin');
     try {
         if (($_FILES['csv']['error'] ?? UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK) throw new DomainException('فایل CSV بارگذاری نشد.');
@@ -556,7 +556,7 @@ if ($method === 'POST' && $path === '/admin/employees/import') {
 }
 
 // ---------- سامانه: سلامت، پشتیبان، مهاجرت، نگهداری داده ----------
-if ($method === 'GET' && $path === '/admin/system') {
+if (route('GET', '/admin/system', $method, $path)) {
     requireRole('system_admin');
     $health=(new HealthService(db(),appConfig()))->run();
     $backup=new BackupService(db());
@@ -565,7 +565,7 @@ if ($method === 'GET' && $path === '/admin/system') {
     render('admin/system',['title'=>'سلامت و نگهداری سامانه','health'=>$health,'backups'=>$backup->list(),'migration_runs'=>$migrationRuns,'applied'=>$applied,'policies'=>(new RetentionService(db()))->policies(),'retention_history'=>(new RetentionService(db()))->history(20)]);
     exit;
 }
-if ($method === 'POST' && $path === '/admin/system/backup') {
+if (route('POST', '/admin/system/backup', $method, $path)) {
     $user=requireRole('system_admin');
     try {
         $result=(new BackupService(db()))->create((int)$user['id']);
@@ -573,7 +573,7 @@ if ($method === 'POST' && $path === '/admin/system/backup') {
     } catch (Throwable $e) { setFlash('error','ساخت پشتیبان ناموفق بود: '.$e->getMessage()); }
     redirect('/admin/system');
 }
-if ($method === 'POST' && preg_match('#^/admin/system/backup/(\d+)/verify$#',$path,$m)) {
+if (route('POST', '#^/admin/system/backup/(\d+)/verify$#', $method, $path, $m)) {
     $user=requireRole('system_admin');
     try {
         $result=(new BackupService(db()))->verify((int)$m[1]);
@@ -581,7 +581,7 @@ if ($method === 'POST' && preg_match('#^/admin/system/backup/(\d+)/verify$#',$pa
     } catch (Throwable $e) { setFlash('error','آزمون بازیابی ناموفق بود.'); }
     redirect('/admin/system');
 }
-if ($method === 'POST' && $path === '/admin/system/retention') {
+if (route('POST', '/admin/system/retention', $method, $path)) {
     $user=requireRole('system_admin');
     $results=(new RetentionService(db()))->run((int)$user['id'], isset($_POST['days']) ? (int)$_POST['days'] : null);
     $total=0; foreach ($results as $result) { $total += (int)$result['deleted']; }

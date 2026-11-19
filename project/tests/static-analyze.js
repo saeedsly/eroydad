@@ -318,14 +318,16 @@ function collectRouteMatchers() {
       if (inBlockComment) { if (line.endsWith('*/')) inBlockComment = false; continue; }
       if (line.startsWith('/*')) { if (!line.endsWith('*/')) inBlockComment = true; continue; }
       if (line.startsWith('//') || line.startsWith('#') || line.startsWith('*')) continue;
-      const methods = [...line.matchAll(/\$method\s*===\s*'([A-Z]+)'/g)].map((x) => x[1]);
-      for (const x of line.matchAll(/\$path\s*===\s*'([^']+)'/g)) {
-        matchers.push({ segments: x[1].split('/'), methods });
-      }
-      // جداکنندهٔ الگوی PCRE در PHP «#...#» است؛ نخست رشتهٔ کامل را می‌گیریم
-      for (const x of line.matchAll(/preg_match\w*\(\s*(['"])(.*?)\1\s*,/g)) {
-        const pattern = x[2].replace(/^#/, '').replace(/#$/, '').replace(/\/$/, '').replace(/^\//, '');
-        matchers.push({ segments: regexSkeleton(pattern), methods });
+      // اعلان جدول مسیرها: route('GET', '/path' …) یا route('POST', '#regex#' …)
+      for (const x of line.matchAll(/\broute\(\s*'([A-Z]+)'\s*,\s*'([^']+)'/g)) {
+        const methods = [x[1]];
+        const pattern = x[2];
+        if (pattern.startsWith('#') && pattern.endsWith('#')) {
+          const body = pattern.slice(1, -1).replace(/^#/, '').replace(/#$/, '');
+          matchers.push({ segments: regexSkeleton(body), methods });
+        } else {
+          matchers.push({ segments: pattern.split('/'), methods });
+        }
       }
     }
   }
@@ -333,6 +335,33 @@ function collectRouteMatchers() {
 }
 
 const routeMatchers = collectRouteMatchers();
+
+// جفت (method, pattern) نباید در دو جا اعلان شود — یعنی دو مسیر یکسان که ترتیب، بی‌صدا یکی را می‌کشد.
+(function checkDuplicateRoutes() {
+  const seen = new Map();
+  for (const file of walk(ROUTES, '.php')) {
+    const rel = path.relative(ROOT, file);
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+      const t = line.trim();
+      if (t.startsWith('//') || t.startsWith('*') || t.startsWith('/*')) continue;
+      for (const x of t.matchAll(/\broute\(\s*'([A-Z]+)'\s*,\s*'([^']+)'/g)) {
+        const key = x[1] + ' ' + x[2];
+        if (seen.has(key)) {
+          problems.push(`${rel}: مسیر «${x[1]} ${x[2]}» دو بار اعلان شده (نخستین بار در ${seen.get(key)}).`);
+        } else {
+          seen.set(key, rel);
+        }
+      }
+    }
+  }
+  // فقط متدهای GET/POST مجازند
+  for (const key of seen.keys()) {
+    const method = key.slice(0, key.indexOf(' '));
+    if (method !== 'GET' && method !== 'POST') {
+      problems.push(`backend/routes: متد غیرمجاز «${method}» در جدول مسیرها (فقط GET و POST).`);
+    }
+  }
+})();
 
 function checkFormActions(file) {
   const code = fs.readFileSync(file, 'utf8');

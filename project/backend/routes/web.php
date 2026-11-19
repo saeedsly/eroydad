@@ -22,11 +22,11 @@ use Eroydad\Settings\UserSettingsService;
 use Eroydad\Support\SupportDeskService;
 
 // ---------- صفحهٔ اصلی و فهرست دوره‌ها ----------
-if ($method === 'GET' && $path === '/') {
+if (route('GET', '/', $method, $path)) {
     render('home', ['title'=>'رویدادهای پیش‌رو','events'=>$events->featured(8)]);
     exit;
 }
-if ($method === 'GET' && $path === '/events') {
+if (route('GET', '/events', $method, $path)) {
     $filters = [
         'q' => trim((string)($_GET['q'] ?? '')),
         'category' => trim((string)($_GET['category'] ?? '')),
@@ -50,7 +50,7 @@ if ($method === 'GET' && $path === '/events') {
     ]);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/events/([a-z0-9-]+)$#', $path, $m)) {
+if (route('GET', '#^/events/([a-z0-9-]+)$#', $method, $path, $m)) {
     $event = $events->bySlug($m[1]);
     if (!$event) { http_response_code(404); render('error', ['title'=>'رویداد پیدا نشد','message'=>'این رویداد وجود ندارد یا منتشر نشده است.']); exit; }
     $content = new EventContentService(db());
@@ -77,7 +77,7 @@ if ($method === 'GET' && preg_match('#^/events/([a-z0-9-]+)$#', $path, $m)) {
     ]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/events/(\d+)/register$#', $path, $m)) {
+if (route('POST', '#^/events/(\d+)/register$#', $method, $path, $m)) {
     $user = requireAuth();
     $eventId = (int)$m[1];
     $back = '/account';
@@ -96,7 +96,7 @@ if ($method === 'POST' && preg_match('#^/events/(\d+)/register$#', $path, $m)) {
         redirect($eventSlug !== '' ? '/events/' . $eventSlug : $back);
     }
 }
-if ($method === 'GET' && preg_match('#^/events/([a-z0-9-]+)/poster$#', $path, $m)) {
+if (route('GET', '#^/events/([a-z0-9-]+)/poster$#', $method, $path, $m)) {
     $event = $events->bySlug($m[1]);
     if (!$event || empty($event['poster_path'])) { http_response_code(404); exit; }
     $posters = new PosterService(db());
@@ -109,21 +109,21 @@ if ($method === 'GET' && preg_match('#^/events/([a-z0-9-]+)/poster$#', $path, $m
     readfile($file);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/preview/([a-f0-9]{16,64})$#', $path, $m)) {
+if (route('GET', '#^/preview/([a-f0-9]{16,64})$#', $method, $path, $m)) {
     $content = new EventContentService(db());
     $event = $content->byPreviewToken($m[1]);
     if (!$event) { http_response_code(404); render('error', ['title'=>'پیش‌نمایش پیدا نشد','message'=>'این نشانی پیش‌نمایش معتبر نیست.']); exit; }
     render('events/show', ['title'=>$event['title'],'event'=>$event,'preview'=>true,'sessions'=>$content->sessions((int)$event['id']),'tags'=>$content->tags((int)$event['id'])]);
     exit;
 }
-if ($method === 'GET' && $path === '/terms') {
+if (route('GET', '/terms', $method, $path)) {
     render('terms', ['title'=>'شرایط استفاده و مالکیت']);
     exit;
 }
 
 // ---------- احراز هویت ----------
-if ($method === 'GET' && $path === '/register') { render('auth/register',['title'=>'ساخت حساب']); exit; }
-if ($method === 'POST' && $path === '/register') {
+if (route('GET', '/register', $method, $path)) { render('auth/register',['title'=>'ساخت حساب']); exit; }
+if (route('POST', '/register', $method, $path)) {
     $phone = normalizePhone((string)($_POST['phone'] ?? ''));
     $limiter = new \Eroydad\Security\RateLimiter(db(), appConfig()['app']['app_key']);
     $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'local');
@@ -144,12 +144,12 @@ if ($method === 'POST' && $path === '/register') {
         redirect('/register');
     }
 }
-if ($method === 'GET' && $path === '/login') {
+if (route('GET', '/login', $method, $path)) {
     $next=(string)($_GET['next']??'');
     if (!preg_match('#^/(events|account)(/[a-z0-9-]{1,180})?$#',$next)) $next='';
     render('auth/login',['title'=>'ورود','next'=>$next]); exit;
 }
-if ($method === 'POST' && $path === '/login') {
+if (route('POST', '/login', $method, $path)) {
     try {
         $auth->login((string)($_POST['phone'] ?? ''),(string)($_POST['password'] ?? ''),(string)($_SERVER['REMOTE_ADDR'] ?? 'local'),(string)($_POST['two_factor_code'] ?? ''));
         setFlash('success','با موفقیت وارد شدید.');
@@ -158,10 +158,10 @@ if ($method === 'POST' && $path === '/login') {
         redirect('/account');
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); redirect('/login'); }
 }
-if ($method === 'POST' && $path === '/logout') { $auth->logout(); redirect('/'); }
+if (route('POST', '/logout', $method, $path)) { $auth->logout(); redirect('/'); }
 
 // ---------- پنل فراگیر ----------
-if ($method === 'GET' && $path === '/account') {
+if (route('GET', '/account', $method, $path)) {
     $user = requireAuth();
     $stmt = db()->prepare("SELECT r.id,r.status,r.registered_at,r.waitlist_position,e.title,e.slug,e.starts_at_utc,e.ends_at_utc,e.venue,e.price_toman,e.tax_percent,e.tax_payer,t.id AS ticket_id,t.status AS ticket_status FROM registrations r JOIN events e ON e.id=r.event_id LEFT JOIN tickets t ON t.registration_id=r.id WHERE r.user_id=? ORDER BY r.registered_at DESC LIMIT 100");
     $stmt->execute([(int)$user['id']]);
@@ -175,7 +175,7 @@ if ($method === 'GET' && $path === '/account') {
     ]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/account/registrations/(\d+)/cancel$#',$path,$m)) {
+if (route('POST', '#^/account/registrations/(\d+)/cancel$#', $method, $path, $m)) {
     $user = requireAuth();
     try {
         (new RegistrationService(db()))->cancelByUser((int)$m[1],(int)$user['id']);
@@ -183,7 +183,7 @@ if ($method === 'POST' && preg_match('#^/account/registrations/(\d+)/cancel$#',$
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/account');
 }
-if ($method === 'GET' && $path === '/account/calendar.ics') {
+if (route('GET', '/account/calendar.ics', $method, $path)) {
     $user = requireAuth();
     $stmt = db()->prepare("SELECT e.title,e.description,e.venue,e.starts_at_utc,e.ends_at_utc,e.slug FROM registrations r JOIN events e ON e.id=r.event_id WHERE r.user_id=? AND r.status='confirmed' AND e.ends_at_utc >= UTC_TIMESTAMP() ORDER BY e.starts_at_utc ASC LIMIT 100");
     $stmt->execute([(int)$user['id']]);
@@ -200,25 +200,25 @@ if ($method === 'GET' && $path === '/account/calendar.ics') {
     echo Ics::build($items, 'دوره‌های ای‌رویداد');
     exit;
 }
-if ($method === 'GET' && $path === '/notifications') {
+if (route('GET', '/notifications', $method, $path)) {
     $user = requireAuth();
     $service = new NotificationService(db());
     render('notifications/index',['title'=>'اعلان‌ها','notifications'=>$service->forUser((int)$user['id'],80),'unread'=>$service->unreadCount((int)$user['id'])]);
     exit;
 }
-if ($method === 'POST' && $path === '/notifications/read') {
+if (route('POST', '/notifications/read', $method, $path)) {
     $user = requireAuth();
     (new NotificationService(db()))->markRead((int)$user['id'], isset($_POST['notification_id']) ? (int)$_POST['notification_id'] : null);
     setFlash('success','اعلان‌ها خوانده‌شده علامت خورد.');
     redirect('/notifications');
 }
-if ($method === 'GET' && $path === '/account/settings') {
+if (route('GET', '/account/settings', $method, $path)) {
     $user = requireAuth();
     $settings = new UserSettingsService(db());
     render('account/settings',['title'=>'تنظیمات نمایش','user'=>$user,'settings'=>$settings->get((int)$user['id']),'scales'=>UserSettingsService::SCALES]);
     exit;
 }
-if ($method === 'POST' && $path === '/account/settings') {
+if (route('POST', '/account/settings', $method, $path)) {
     $user = requireAuth();
     try {
         (new UserSettingsService(db()))->save((int)$user['id'], (string)($_POST['theme'] ?? 'auto'), (int)($_POST['font_scale'] ?? 100));
@@ -226,14 +226,14 @@ if ($method === 'POST' && $path === '/account/settings') {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/account/settings');
 }
-if ($method === 'GET' && $path === '/account/organization') {
+if (route('GET', '/account/organization', $method, $path)) {
     $user = requireAuth();
     $stmt = db()->prepare('SELECT * FROM organization_profiles WHERE user_id=? LIMIT 1');
     $stmt->execute([(int)$user['id']]);
     render('account/organization',['title'=>'اطلاعات سازمانی','user'=>$user,'profile'=>$stmt->fetch() ?: []]);
     exit;
 }
-if ($method === 'POST' && $path === '/account/organization') {
+if (route('POST', '/account/organization', $method, $path)) {
     $user = requireAuth();
     $name = trim((string)($_POST['organization_name'] ?? ''));
     if (mb_strlen($name,'UTF-8') < 2 || mb_strlen($name,'UTF-8') > 190) {
@@ -251,7 +251,7 @@ if ($method === 'POST' && $path === '/account/organization') {
     setFlash('success','اطلاعات سازمانی ذخیره شد.');
     redirect('/account/organization');
 }
-if ($method === 'GET' && $path === '/account/security') {
+if (route('GET', '/account/security', $method, $path)) {
     $user = requireAuth();
     $twoFactor = new TwoFactorService(db());
     $sessions = new \Eroydad\Admin\SessionService(db());
@@ -262,14 +262,14 @@ if ($method === 'GET' && $path === '/account/security') {
     ]);
     exit;
 }
-if ($method === 'POST' && $path === '/account/security/2fa/setup') {
+if (route('POST', '/account/security/2fa/setup', $method, $path)) {
     $user = requireAuth();
     $setup = (new TwoFactorService(db()))->beginSetup((int)$user['id']);
     $_SESSION['_2fa_secret'] = $setup['secret'];
     render('account/security-2fa',['title'=>'فعال‌سازی ورود دومرحله‌ای','user'=>$user,'setup'=>$setup,'two_factor'=>(new TwoFactorService(db()))->status((int)$user['id'])]);
     exit;
 }
-if ($method === 'POST' && $path === '/account/security/2fa/enable') {
+if (route('POST', '/account/security/2fa/enable', $method, $path)) {
     $user = requireAuth();
     try {
         $result = (new TwoFactorService(db()))->enable((int)$user['id'], (string)($_POST['code'] ?? ''));
@@ -281,7 +281,7 @@ if ($method === 'POST' && $path === '/account/security/2fa/enable') {
     }
     exit;
 }
-if ($method === 'POST' && $path === '/account/security/2fa/disable') {
+if (route('POST', '/account/security/2fa/disable', $method, $path)) {
     $user = requireAuth();
     try {
         (new TwoFactorService(db()))->disable((int)$user['id'], (string)($_POST['code'] ?? ''));
@@ -289,7 +289,7 @@ if ($method === 'POST' && $path === '/account/security/2fa/disable') {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/account/security');
 }
-if ($method === 'POST' && $path === '/account/security/password') {
+if (route('POST', '/account/security/password', $method, $path)) {
     $user = requireAuth();
     $current = (string)($_POST['current_password'] ?? '');
     $new = (string)($_POST['new_password'] ?? '');
@@ -308,18 +308,18 @@ if ($method === 'POST' && $path === '/account/security/password') {
     setFlash('success','رمز عبور تغییر کرد و نشست‌های قبلی باطل شدند.');
     redirect('/account/security');
 }
-if ($method === 'POST' && $path === '/account/security/logout-all') {
+if (route('POST', '/account/security/logout-all', $method, $path)) {
     $user = requireAuth();
     $count = (new \Eroydad\Admin\SessionService(db()))->revokeAll((int)$user['id'], (int)$user['id']);
     setFlash('success','از ' . $count . ' نشست خارج شدید. دوباره وارد شوید.');
     $auth->logout();
     redirect('/login');
 }
-if ($method === 'GET' && $path === '/password/reset') {
+if (route('GET', '/password/reset', $method, $path)) {
     render('auth/password-reset',['title'=>'بازیابی رمز عبور']);
     exit;
 }
-if ($method === 'POST' && $path === '/password/reset') {
+if (route('POST', '/password/reset', $method, $path)) {
     $phone = normalizePhone((string)($_POST['phone'] ?? ''));
     $code = strtoupper(trim((string)($_POST['code'] ?? '')));
     $password = (string)($_POST['new_password'] ?? '');
@@ -335,14 +335,14 @@ if ($method === 'POST' && $path === '/password/reset') {
 }
 
 // ---------- پرداخت آزمایشی ----------
-if ($method === 'GET' && $path === '/account/payments') {
+if (route('GET', '/account/payments', $method, $path)) {
     $user = requireAuth();
     $stmt = db()->prepare('SELECT p.*, e.title AS event_title, e.slug FROM payments p JOIN events e ON e.id=p.event_id WHERE p.user_id=? ORDER BY p.id DESC LIMIT 100');
     $stmt->execute([(int)$user['id']]);
     render('payments/index',['title'=>'پرداخت‌های آزمایشی','user'=>$user,'payments'=>$stmt->fetchAll()]);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/payments/(\d+)/sandbox$#',$path,$m)) {
+if (route('GET', '#^/payments/(\d+)/sandbox$#', $method, $path, $m)) {
     $user = requireAuth();
     $service = new PaymentService(db());
     $payment = $service->payment((int)$m[1]);
@@ -350,7 +350,7 @@ if ($method === 'GET' && preg_match('#^/payments/(\d+)/sandbox$#',$path,$m)) {
     render('payments/sandbox',['title'=>'درگاه آزمایشی','user'=>$user,'payment'=>$payment,'scenarios'=>\Eroydad\Payments\SandboxGateway::SCENARIOS]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/payments/(\d+)/sandbox$#',$path,$m)) {
+if (route('POST', '#^/payments/(\d+)/sandbox$#', $method, $path, $m)) {
     $user = requireAuth();
     try {
         $result = (new PaymentService(db()))->process((int)$m[1], (int)$user['id'], (string)($_POST['scenario'] ?? 'success'));
@@ -358,7 +358,7 @@ if ($method === 'POST' && preg_match('#^/payments/(\d+)/sandbox$#',$path,$m)) {
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/payments/' . (int)$m[1] . '/sandbox');
 }
-if ($method === 'GET' && preg_match('#^/payments/(\d+)/receipt$#',$path,$m)) {
+if (route('GET', '#^/payments/(\d+)/receipt$#', $method, $path, $m)) {
     $user = requireAuth();
     $receipt = (new PaymentService(db()))->receipt((int)$m[1], (int)$user['id']);
     if (!$receipt) { http_response_code(404); render('error',['title'=>'رسید پیدا نشد','message'=>'رسید موردنظر در دسترس نیست.']); exit; }
@@ -367,13 +367,13 @@ if ($method === 'GET' && preg_match('#^/payments/(\d+)/receipt$#',$path,$m)) {
 }
 
 // ---------- گواهی و بازخورد ----------
-if ($method === 'GET' && preg_match('#^/certificate/([a-f0-9]{16,64})$#',$path,$m)) {
+if (route('GET', '#^/certificate/([a-f0-9]{16,64})$#', $method, $path, $m)) {
     $certificate = (new CertificateService(db()))->byCode($m[1]);
     if (!$certificate) { http_response_code(404); render('error',['title'=>'گواهی پیدا نشد','message'=>'کد گواهی معتبر نیست یا گواهی صادر نشده است.']); exit; }
     render('certificates/verify',['title'=>'استعلام گواهی','certificate'=>$certificate]);
     exit;
 }
-if ($method === 'GET' && preg_match('#^/feedback/(\d+)$#',$path,$m)) {
+if (route('GET', '#^/feedback/(\d+)$#', $method, $path, $m)) {
     $user = requireAuth();
     $stmt = db()->prepare('SELECT r.id, r.status, r.rating AS existing_rating, e.title, e.starts_at_utc FROM registrations r JOIN events e ON e.id=r.event_id WHERE r.id=? AND r.user_id=?');
     $stmt->execute([(int)$m[1],(int)$user['id']]);
@@ -383,7 +383,7 @@ if ($method === 'GET' && preg_match('#^/feedback/(\d+)$#',$path,$m)) {
     render('feedback/form',['title'=>'بازخورد دوره','registration'=>$registration,'feedback'=>$existing ?: []]);
     exit;
 }
-if ($method === 'POST' && preg_match('#^/feedback/(\d+)$#',$path,$m)) {
+if (route('POST', '#^/feedback/(\d+)$#', $method, $path, $m)) {
     $user = requireAuth();
     try {
         (new FeedbackService(db()))->submit((int)$m[1], (int)$user['id'], (int)($_POST['rating'] ?? 0), (string)($_POST['comment'] ?? ''));
@@ -393,12 +393,12 @@ if ($method === 'POST' && preg_match('#^/feedback/(\d+)$#',$path,$m)) {
 }
 
 // ---------- پشتیبانی ----------
-if ($method === 'GET' && $path === '/support') {
+if (route('GET', '/support', $method, $path)) {
     $user = requireAuth();
     render('support/index',['title'=>'پشتیبانی','tickets'=>$support->forUser((int)$user['id'])]);
     exit;
 }
-if ($method === 'POST' && $path === '/support') {
+if (route('POST', '/support', $method, $path)) {
     $user = requireAuth();
     try {
         $eventId = isset($_POST['event_id']) && $_POST['event_id'] !== '' ? (int)$_POST['event_id'] : null;
@@ -406,7 +406,7 @@ if ($method === 'POST' && $path === '/support') {
         setFlash('success','درخواست پشتیبانی ثبت شد.'); redirect('/support/' . $id);
     } catch (DomainException $e) { setFlash('error',$e->getMessage()); redirect('/support'); }
 }
-if ($method === 'GET' && preg_match('#^/support/(\d+)$#',$path,$m)) {
+if (route('GET', '#^/support/(\d+)$#', $method, $path, $m)) {
     $user = requireAuth();
     try { $messages=$support->messages((int)$m[1],(int)$user['id'],false); }
     catch (DomainException $e) { http_response_code(404); render('error',['title'=>'تیکت پیدا نشد','message'=>$e->getMessage()]); exit; }
@@ -414,13 +414,13 @@ if ($method === 'GET' && preg_match('#^/support/(\d+)$#',$path,$m)) {
     $stmt->execute([(int)$m[1]]);
     render('support/detail',['title'=>'پیگیری تیکت','ticketId'=>(int)$m[1],'messages'=>$messages,'ticket'=>$stmt->fetch() ?: []]); exit;
 }
-if ($method === 'POST' && preg_match('#^/support/(\d+)/reply$#',$path,$m)) {
+if (route('POST', '#^/support/(\d+)/reply$#', $method, $path, $m)) {
     $user = requireAuth();
     try { $support->reply((int)$m[1],(int)$user['id'],(string)($_POST['body'] ?? ''),false); setFlash('success','پیام شما ثبت شد.'); }
     catch (DomainException $e) { setFlash('error',$e->getMessage()); }
     redirect('/support/' . (int)$m[1]);
 }
-if ($method === 'POST' && preg_match('#^/support/(\d+)/rate$#',$path,$m)) {
+if (route('POST', '#^/support/(\d+)/rate$#', $method, $path, $m)) {
     $user = requireAuth();
     try {
         (new SupportDeskService(db()))->rate((int)$m[1],(int)$user['id'],(int)($_POST['rating'] ?? 0),(string)($_POST['comment'] ?? ''));
@@ -430,7 +430,7 @@ if ($method === 'POST' && preg_match('#^/support/(\d+)/rate$#',$path,$m)) {
 }
 
 // ---------- بلیت ----------
-if ($method === 'GET' && preg_match('#^/tickets/(\d+)/print$#',$path,$m)) {
+if (route('GET', '#^/tickets/(\d+)/print$#', $method, $path, $m)) {
     $user = requireAuth();
     $ticket = $tickets->forUser((int)$m[1],(int)$user['id']);
     if (!$ticket) { http_response_code(404); render('error',['title'=>'بلیت پیدا نشد','message'=>'بلیت در حساب شما پیدا نشد.']); exit; }

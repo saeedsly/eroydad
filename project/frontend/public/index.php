@@ -70,6 +70,7 @@ try {
         verifyCsrf();
     }
 
+    require PROJECT_ROOT . '/backend/src/Http/routes.php';
     require PROJECT_ROOT . '/backend/routes/web.php';
     require PROJECT_ROOT . '/backend/routes/admin.php';
 

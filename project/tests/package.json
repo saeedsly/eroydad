@@ -9,6 +9,7 @@
   "scripts": {
     "lint": "node php-lint-wasm.mjs",
     "analyze": "node static-analyze.js",
+    "routes": "node gen-routes-doc.mjs --check",
     "schema": "node schema-test.mjs",
     "migration": "node migration-test.mjs",
     "migration:runner": "node migrate-run-test.mjs",

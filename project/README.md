@@ -45,6 +45,7 @@
 ```bash
 npm --prefix tests install
 npm --prefix tests run analyze       # تحلیل ایستا: route/سرویس/view + فرم‌ها + دسترس‌پذیری
+npm --prefix tests run routes         # هم‌خوانی سند مسیرها (docs/api/routes.md) با کد
 npm --prefix tests run lint          # نحوی PHP 7.4 برای همهٔ فایل‌ها
 npm --prefix tests run schema        # اجرای schema.sql روی MariaDB واقعی
 npm --prefix tests run migration     # گام‌های مهاجرت ۰۰۲ و بی‌خطر‌بودن اجرای دوباره

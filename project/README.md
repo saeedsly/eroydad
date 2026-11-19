@@ -86,6 +86,7 @@ npm --prefix tests run zip           # بازرس بسته: بدون راز، ق
 
 - [`PLAN-FA.md`](PLAN-FA.md) — برنامهٔ بهبود جاری (چهار کاربرگ)
 - [`ROADMAP-FA.md`](ROADMAP-FA.md) — نقشهٔ راه ۹۰ قابلیت و وضعیت هر مورد
+- [`docs/architecture/skills-playbook.md`](docs/architecture/skills-playbook.md) — یادداشت مطالعهٔ مخزن‌های مهارت (امنیت و طراحی) و اِعمال واقعی آن‌ها
 - **مسیرها و API:** [`docs/api/routes.md`](docs/api/routes.md) (تولیدشده از کد) · [`docs/api/auth.md`](docs/api/auth.md) (نشست، CSRF، مجوز)
 - **معماری:** [`docs/architecture/overview.md`](docs/architecture/overview.md) · [`docs/architecture/data-model.md`](docs/architecture/data-model.md)
 - **استقرار:** [`docs/deployment/xampp.md`](docs/deployment/xampp.md) (نصب تمیز + چک‌لیست دستی) · [`docs/deployment/linux.md`](docs/deployment/linux.md) · [`docs/deployment/backup.md`](docs/deployment/backup.md)

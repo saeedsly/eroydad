@@ -31,16 +31,7 @@ if ($user) {
   <link rel="preload" href="/assets/fonts/vazirmatn-variable.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="<?= h(assetUrl('/assets/css/app.css')) ?>">
   <link rel="stylesheet" href="<?= h(assetUrl('/assets/css/design-system.css')) ?>">
-  <script>
-    (function () {
-      try {
-        var stored = localStorage.getItem('erooydad-theme');
-        if (stored) { document.documentElement.setAttribute('data-theme', stored); }
-        var scale = localStorage.getItem('erooydad-font-scale');
-        if (scale) { document.documentElement.style.setProperty('--font-scale', scale); }
-      } catch (e) {}
-    })();
-  </script>
+  <script src="<?= h(assetUrl('/assets/js/theme-boot.js')) ?>"></script>
 </head>
 <body>
 <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
@@ -51,14 +42,14 @@ if ($user) {
     <span class="header-spacer" aria-hidden="true"></span>
     <div class="nav-account">
       <?php if ($user): ?>
-        <a class="nav-bell" href="/notifications" aria-label="اعلان‌ها (<?= toPersianDigits((string)$unreadNotifications) ?> خوانده‌نشده)"><span aria-hidden="true">🔔</span><?php if ($unreadNotifications > 0): ?><b><?= toPersianDigits((string)$unreadNotifications) ?></b><?php endif; ?></a>
+        <a class="nav-bell" href="/notifications" aria-label="اعلان‌ها (<?= toPersianDigits((string)$unreadNotifications) ?> خوانده‌نشده)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="16" height="16"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><?php if ($unreadNotifications > 0): ?><b><?= toPersianDigits((string)$unreadNotifications) ?></b><?php endif; ?></a>
         <a class="nav-user" href="/account"><?= h($user['full_name']) ?></a>
         <?php if ($isEventAdmin): ?><a class="btn btn-small btn-outline" href="/admin">مدیریت</a><?php endif; ?>
         <form method="post" action="/logout" class="inline-form"><?= csrfField() ?><button class="link-button" type="submit">خروج</button></form>
       <?php else: ?>
         <a class="nav-login" href="/login">ورود</a><a class="btn btn-small btn-primary" href="/register">ساخت حساب</a>
       <?php endif; ?>
-      <button class="theme-toggle" type="button" data-theme-toggle aria-label="تغییر حالت روشن و تیره" title="حالت روشن/تیره"><span class="theme-toggle-icon" aria-hidden="true">◐</span></button>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="تغییر حالت روشن و تیره" title="حالت روشن/تیره"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="18" height="18"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.7"/><path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor"/></svg></button>
     </div>
   </div>
 </header>

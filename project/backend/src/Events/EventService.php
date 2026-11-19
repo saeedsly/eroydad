@@ -261,19 +261,39 @@ final class EventService
      * یا در نبودش (JS خاموش/نشکسته) از فیلدهای قابل‌مشاهدهٔ «تاریخ شمسی + ساعت».
      * اگر هیچ‌کدام نباشد رشتهٔ خالی برمی‌گردد تا پیام استاندارد «تاریخ/ساعت معتبر نیست» داده شود.
      */
+    /** نرمال‌سازی مقدار مخفی/مستقیم به Y-m-dTH:i (ثانیهٔ اضافه پذیرفته و حذف می‌شود). */
+    private static function normalizeDateTime(string $value): ?string
+    {
+        $value = str_replace(' ', 'T', trim($value));
+        if (preg_match('/^(\d{4}-\d{2}-\d{2})T(\d{1,2}):(\d{2})(?::\d{2})?$/', $value, $m)) {
+            return $m[1] . 'T' . sprintf('%02d:%02d', (int)$m[2], (int)$m[3]);
+        }
+        return null;
+    }
+
     public static function dateTimeFromInput(array $input, string $field): string
     {
         $raw = trim((string)($input[$field] ?? ''));
         if ($raw !== '') {
-            return $raw;
+            $normalized = self::normalizeDateTime($raw);
+            if ($normalized !== null) {
+                return $normalized;
+            }
+            // مقدار مخفی خراب است؛ از فیلدهای قابل‌مشاهده نجات می‌دهیم.
         }
         $date = trim((string)($input[$field . '_date'] ?? ''));
         $time = trim((string)($input[$field . '_time'] ?? ''));
         if ($date === '' && $time === '') {
-            return '';
+            return $raw !== '' ? $raw : '';
         }
         $gregorian = \gregorianFromJalali($date);
         if ($gregorian === null || !preg_match('/^(\d{1,2}):(\d{1,2})$/', $time, $m)) {
+            if ($raw !== '') {
+                $normalized = self::normalizeDateTime($raw);
+                if ($normalized !== null) {
+                    return $normalized;
+                }
+            }
             throw new \DomainException('تاریخ شمسی و ساعت را بررسی کنید.');
         }
         return $gregorian . 'T' . sprintf('%02d:%02d', (int)$m[1], (int)$m[2]);
@@ -286,6 +306,9 @@ final class EventService
             throw new \DomainException('تاریخ/ساعت معتبر نیست.');
         }
         $value = str_replace(' ', 'T', $value);
+        if (preg_match('/^(\d{4}-\d{2}-\d{2})T(\d{1,2}):(\d{2})(?::(\d{2}))?$/', $value, $m)) {
+            $value = $m[1] . 'T' . sprintf('%02d:%02d', (int)$m[2], (int)$m[3]);
+        }
         $date = DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', $value, new DateTimeZone('Asia/Tehran'));
         $errors = DateTimeImmutable::getLastErrors();
         if (!$date || (is_array($errors) && ($errors['warning_count'] || $errors['error_count']))) throw new \DomainException('تاریخ/ساعت معتبر نیست.');

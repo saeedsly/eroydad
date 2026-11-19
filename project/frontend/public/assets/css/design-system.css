@@ -189,7 +189,7 @@ h1,h2,h3{letter-spacing:0}
 .eyebrow span{color:#12b47c}
 .section-head h1,.section-head h2{font-size:35px;font-weight:800;letter-spacing:0;color:var(--ink)}
 .section-head h1 em,.section-head h2 em,.page-banner h1 em,.about-copy h2 em{
-  background:linear-gradient(100deg,#0a8a5e 0%,#12b47c 55%,#b98a1f 100%);
+  background:linear-gradient(100deg,#0a7d56 0%,#0f9d6b 55%,#8f6d12 100%);
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;font-style:normal
 }

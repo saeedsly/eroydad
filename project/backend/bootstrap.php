@@ -168,6 +168,26 @@ function currentPreferences(): array
 function csrfField(): string { return '<input type="hidden" name="_csrf" value="' . h(Csrf::token()) . '">'; }
 function verifyCsrf(): void
 {
+    // لایهٔ دوم CSRF (مطابق راهنمای مهارت‌ها): اگر Origin ارسال شده و میزبانش با این درخواست یکی نیست، رد کن.
+    $origin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
+    if ($origin !== '') {
+        $host = strtolower((string)($_SERVER['HTTP_HOST'] ?? ''));
+        $originHost = strtolower((string)(parse_url($origin, PHP_URL_HOST) ?? ''));
+        $originPort = parse_url($origin, PHP_URL_PORT);
+        $originAuthority = $originHost . (($originPort !== false && $originPort !== null) ? ':' . (int)$originPort : '');
+        $isLoopback = static function (string $h): bool {
+            $h = preg_replace('/:\d+$/', '', $h);
+            return $h === 'localhost' || $h === '[::1]' || $h === '::1' || strpos($h, '127.') === 0;
+        };
+        $hostNoPort = preg_replace('/:\d+$/', '', $host);
+        if ($host !== '' && $originAuthority !== $host && !($isLoopback($originHost) && $isLoopback($hostNoPort))) {
+            http_response_code(419);
+            header('Content-Type: text/html; charset=UTF-8');
+            echo '<!doctype html><html lang="fa" dir="rtl"><meta charset="utf-8"><title>درخواست نامعتبر</title><body style="font-family:Tahoma,sans-serif;padding:40px;text-align:center"><h2>درخواست از مبدأ نامعتبر رد شد.</h2><p>به صفحه برگردید و دوباره تلاش کنید.</p></body></html>';
+            exit;
+        }
+    }
+
     if (!Csrf::verify($_POST['_csrf'] ?? null)) {
         http_response_code(419);
         exit('درخواست معتبر نیست یا منقضی شده است. صفحه را تازه‌سازی کنید.');

@@ -68,5 +68,24 @@ try {
 }
 t('تاریخ هست ولی ساعت نیست → همان پیام', $thrown2 === 'تاریخ شمسی و ساعت را بررسی کنید.', (string)$thrown2);
 
+
+// ---------- نرمال‌سازی مقدار مخفی خراب (باگ قدیمی تاریخ‌شمار: HH:MM:HH) ----------
+$total2 = 0; // شمارنده ادامه در همان فایل
+t('مقدار مخفی با ثانیهٔ اضافه پذیرفته و نرمال می‌شود',
+    EventService::dateTimeFromInput(['starts_at' => '2026-11-26T10:00:10'], 'starts_at') === '2026-11-26T10:00',
+    EventService::dateTimeFromInput(['starts_at' => '2026-11-26T10:00:10'], 'starts_at'));
+t('localDateToUtc مقدار با ثانیه را می‌پذیرد',
+    EventService::localDateToUtc('2026-11-26T10:00:10') === '2026-11-26 06:30:00',
+    EventService::localDateToUtc('2026-11-26T10:00:10'));
+t('مقدار مخفی خراب از فیلدهای قابل‌مشاهده نجات می‌یابد',
+    EventService::dateTimeFromInput(
+        ['starts_at' => 'broken-value', 'starts_at_date' => '۱۴۰۵/۰۹/۰۵', 'starts_at_time' => '10:00'],
+        'starts_at'
+    ) === '2026-11-26T10:00',
+    EventService::dateTimeFromInput(
+        ['starts_at' => 'broken-value', 'starts_at_date' => '۱۴۰۵/۰۹/۰۵', 'starts_at_time' => '10:00'],
+        'starts_at'
+    ));
+
 echo "UNIT_DONE total=$total fail=$fails\n";
 exit(0); // شمارش نهایی با UNIT_DONE انجام می‌شود

@@ -25,7 +25,8 @@
     "datepicker": "node jalali-date.test.js",
     "zip": "node zip-audit.mjs",
     "package": "node build-package.mjs",
-    "all": "node static-analyze.js && node gen-routes-doc.mjs --check && node jalali-date.test.js && node php-lint-wasm.mjs && node schema-test.mjs && node migration-test.mjs && node migrate-run-test.mjs && node unit-run.mjs && node integration-run.mjs && node security-run.mjs && node acceptance-run.mjs && node http-smoke-test.mjs && node browser-smoke.mjs && node installer-test.mjs && node build-package.mjs && node clean-install-test.mjs && node zip-audit.mjs"
+    "all": "node static-analyze.js && node gen-routes-doc.mjs --check && node jalali-date.test.js && node php-lint-wasm.mjs && node schema-test.mjs && node migration-test.mjs && node migrate-run-test.mjs && node unit-run.mjs && node integration-run.mjs && node security-run.mjs && node acceptance-run.mjs && node http-smoke-test.mjs && node browser-smoke.mjs && node date-flow-browser.mjs && node installer-test.mjs && node build-package.mjs && node clean-install-test.mjs && node zip-audit.mjs",
+    "dateflow": "node date-flow-browser.mjs"
   },
   "devDependencies": {
     "@adrianfalleiro/mariadb-wasm": "^0.1.2",

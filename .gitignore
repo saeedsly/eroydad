@@ -19,3 +19,6 @@ coverage/
 
 # Local skill reference libraries (not part of the deliverable)
 .skills/
+
+# بسته‌های اسکرین‌شات آزمون مرورگری
+project/tests/artifacts/

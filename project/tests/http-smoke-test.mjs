@@ -239,6 +239,24 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   ok('توکن CSRF در فرم ورود هست', csrf !== null, loginPage.text.slice(0, 300));
   if (!csrf) throw new Error('توکن CSRF پیدا نشد');
 
+  // لایهٔ دوم CSRF (مهارت‌های امنیتی مطالعه‌شده): Origin بیگانه باید رد شود
+  const evilOrigin = await req('/login', {
+    method: 'POST',
+    body: { _csrf: csrf[1], phone: '09129990001', password: 'x' },
+    headers: { Origin: 'https://evil.example' },
+  });
+  ok('درخواست با Origin بیگانه با پیام «مبدأ نامعتبر» رد می‌شود',
+    evilOrigin.status === 419 && /مبدأ نامعتبر/.test(evilOrigin.text),
+    'status=' + evilOrigin.status + ' ' + evilOrigin.text.slice(0, 120));
+  const sameOrigin = await req('/login', {
+    method: 'POST',
+    body: { _csrf: csrf[1], phone: '09129990001', password: 'Wrong-Password-1' },
+    headers: { Origin: 'http://localhost' },
+  });
+  ok('Origin هم‌میزبان پذیرفته می‌شود و درخواست به مسیر عادی می‌رود',
+    !/مبدأ نامعتبر/.test(sameOrigin.text) && sameOrigin.status < 500,
+    'status=' + sameOrigin.status);
+
   const badLogin = await req('/login', {
     method: 'POST',
     body: { _csrf: csrf[1], phone: '09129990001', password: 'Wrong-Password-1' },

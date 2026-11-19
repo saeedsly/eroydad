@@ -132,14 +132,14 @@
     if (!input || !time || !hidden || !calendar || !toggle || !title || !days) return;
 
     function setError(message) {
-      error.textContent = message || '';
+      if (error) error.textContent = message || '';
       input.setAttribute('aria-invalid', message ? 'true' : 'false');
       input.setCustomValidity(message || '');
     }
 
     function syncHidden() {
       var date = parseDate(input.value);
-      var hm = time.value.match(/^(\d{2}):(\d{2})$/);
+      var hm = time.value.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
       if (!date || !hm) {
         hidden.value = '';
         if (!input.value.trim()) setError('');
@@ -148,7 +148,7 @@
         return false;
       }
       var gregorian = jalaliToGregorian(date.year, date.month, date.day);
-      hidden.value = String(gregorian.year).padStart(4, '0') + '-' + String(gregorian.month).padStart(2, '0') + '-' + String(gregorian.day).padStart(2, '0') + 'T' + hm[0] + ':' + hm[1];
+      hidden.value = String(gregorian.year).padStart(4, '0') + '-' + String(gregorian.month).padStart(2, '0') + '-' + String(gregorian.day).padStart(2, '0') + 'T' + String(hm[1]).padStart(2, '0') + ':' + hm[2];
       setError('');
       return true;
     }
@@ -266,10 +266,10 @@
         var time = field.querySelector('[data-jalali-time]');
         var hidden = field.querySelector('[data-gregorian-datetime]');
         var date = input && parseDate(input.value);
-        var hm = time && time.value.match(/^(\d{2}):(\d{2})$/);
+        var hm = time && time.value.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
         if (date && hm && hidden) {
           var g = jalaliToGregorian(date.year, date.month, date.day);
-          hidden.value = String(g.year).padStart(4, '0') + '-' + String(g.month).padStart(2, '0') + '-' + String(g.day).padStart(2, '0') + 'T' + hm[0] + ':' + hm[1];
+          hidden.value = String(g.year).padStart(4, '0') + '-' + String(g.month).padStart(2, '0') + '-' + String(g.day).padStart(2, '0') + 'T' + String(hm[1]).padStart(2, '0') + ':' + hm[2];
           input.setCustomValidity('');
           input.setAttribute('aria-invalid', 'false');
         } else {

@@ -103,7 +103,14 @@ $sysRole = $db->prepare("SELECT id FROM roles WHERE code='system_admin'");
 $sysRole->execute();
 $db->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?,?)')->execute([$sysId, (int)$sysRole->fetchColumn()]);
 $slug = (string)$db->query('SELECT slug FROM events WHERE id=' . (int)$eventId)->fetchColumn();
-echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, 'event_id' => $eventId, 'slug' => $slug, 'paid_id' => $paidId, 'paid_slug' => $paidSlug]) . "\\n";
+// کاربر مدیری که در لاگ پیش‌نمایش اعلام می‌شود نیز باید واقعاً وارد شود
+$legacyHash = password_hash(passwordMaterial('Admin-1404!Demo'), PASSWORD_DEFAULT);
+$legacy = $db->prepare("INSERT INTO users (phone,full_name,password_hash,account_type,status,phone_verified_at) VALUES (?,?,?,'municipal','active',UTC_TIMESTAMP())");
+$legacy->execute(['09120000001', 'مدیر سامانهٔ پیش‌نمایش', $legacyHash]);
+$legacyId = (int)$db->lastInsertId();
+$sysRole->execute();
+$db->prepare('INSERT INTO user_roles (user_id, role_id) VALUES (?,?)')->execute([$legacyId, (int)$sysRole->fetchColumn()]);
+echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, 'legacy_admin_id' => $legacyId, 'event_id' => $eventId, 'slug' => $slug, 'paid_id' => $paidId, 'paid_slug' => $paidSlug]) . "\\n";
 `,
 });
 const seedText = typeof seed.text === 'string' ? seed.text : new TextDecoder().decode(seed.stdout ?? new Uint8Array());
@@ -181,7 +188,7 @@ const server = http.createServer((req, res) => {
         const body = chunks.length ? Buffer.concat(chunks) : undefined;
         const jar = jarFor(ip);
         const headers = {};
-        for (const name of ['content-type', 'accept', 'accept-language', 'x-requested-with']) {
+        for (const name of ['content-type', 'accept', 'accept-language', 'x-requested-with', 'origin', 'host']) {
           if (req.headers[name]) headers[name] = req.headers[name];
         }
         const cookie = jar.getCookieRequestHeader();

@@ -31,7 +31,7 @@
 ## نقش و مجوز
 
 - چهار نقش پایه: `attendee` (بدون مجوز ادمین)، `event_admin`، `support`، `system_admin`.
-- ۲۳ مجوز در `Permissions::CATALOG` (مثلاً `events.publish`، `payments.refund`، `users.manage`).
+- ۲۲ مجوز در `Permissions::CATALOG` (مثلاً `events.publish`، `payments.refund`، `users.manage`).
 - پیش‌فرض هر نقش در `Permissions::ROLE_DEFAULTS`؛ ماتریس در دیتابیس (`role_permissions`) و در صفحهٔ `/admin/roles` قابل ویرایش است.
 - در کد: `requireAuth()` (ورود الزامی)، `requireRole('a','b')` (حداقل یکی)، `Permissions::allows($user, 'permission')` برای مجوزهای ریز.
 - صفحه‌های admin همه با `requireRole` شروع می‌شوند؛ کاربر بدون نقش ← 403.

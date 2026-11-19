@@ -375,7 +375,7 @@ if (route('GET', '#^/certificate/([a-f0-9]{16,64})$#', $method, $path, $m)) {
 }
 if (route('GET', '#^/feedback/(\d+)$#', $method, $path, $m)) {
     $user = requireAuth();
-    $stmt = db()->prepare('SELECT r.id, r.status, r.rating AS existing_rating, e.title, e.starts_at_utc FROM registrations r JOIN events e ON e.id=r.event_id WHERE r.id=? AND r.user_id=?');
+    $stmt = db()->prepare('SELECT r.id, r.status, e.title, e.starts_at_utc FROM registrations r JOIN events e ON e.id=r.event_id WHERE r.id=? AND r.user_id=?');
     $stmt->execute([(int)$m[1],(int)$user['id']]);
     $registration = $stmt->fetch();
     if (!$registration) { http_response_code(404); render('error',['title'=>'ثبت‌نام پیدا نشد','message'=>'ثبت‌نام موردنظر در حساب شما نیست.']); exit; }

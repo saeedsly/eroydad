@@ -13,6 +13,9 @@
 | `http-smoke-test.mjs` | MariaDB 11.8 + PHP 7.4 | ۱۳۶ بررسی در سطح HTTP روی فرانت‌کنترل واقعی: رندر صفحه‌ها، نشست، CSRF، فلش، کنترل دسترسی (مجبور‌سازی ۴۰۳ و دیدن مسیر مجاز)، منوی نقش‌محور، فرم ثبت‌نام واقعی و تکراری، پنل وضعیت جایگاه در صفحهٔ رویداد (قطعی/پرداخت‌نشده/ادامهٔ پرداخت)، ریز مبلغ و مالیات روی صفحهٔ رویداد پولی، اطلاعات سازمانی، تقویم ICS، JSON همگام‌سازی صف، دانلود XLSX، مسیرهای PWA، نصب در زیرپوشه و یکپارچگی پیوندها (هر href/src/action باید مسیر ثبت‌شدۀ برنامه یا فایل استاتیک باشد، و لنگرهای درون‌صفحه‌ای به قطعهٔ موجود برسند) |
 | `static-analyze.js` | — (تحلیل متن) | سازگاری route/سرویس/view، پوشش `action` فرم‌ها، وجود فایل‌های require، `prepare()` بدون `execute()`، کلاس namespaced بدون `import`، دسترس‌پذیری (alt، برچسب ورودی‌ها، `lang`/`dir`) و تأییدیهٔ `data-confirm` روی فرم‌های حساس |
 | `gen-routes-doc.mjs` | — (متن) | تولید `docs/api/routes.md` از خطوط `route(…)` و کنترل `--check` هم‌خوانی سند با کد؛ جفت (method, pattern) تکراری و متد غیرمجاز را تحلیل ایستا گزارش می‌کند |
+| `unit-run.mjs` + `Unit/*.php` | PHP 7.4 (WASM) | آزمون واحدِ منطق خالص: مالیات و Money، ماتریس مجوزها، اندیس ستون XLSX، خروجی ICS، کد ملی (۵ فایل، ۵۱ بررسی) |
+| `security-run.mjs` | PHP 7.4 + MariaDB | امنیت در سطح HTTP: مالکیت/IDOR روی پرداخت-بلیت-بازخورد-رسید، 403 نقش، CSRF (بدون/نادرست/درست)، XSS ذخیره‌شده در نام سازمانی، باطل‌شدن نشست با «خروج از همه»، محدودیت نرخ ورود (۲۳ بررسی) |
+| `acceptance-run.mjs` | PHP 7.4 + MariaDB | سه سفر کامل: فراگیر (ثبت‌نام تا لغو و بازخورد و تیکت)، پولی (شکست ← ادامه ← موفق ← رسید)، مدیر (داشبورد + بازکردن واقعی zip/XML خروجی XLSX) — ۳۳ بررسی |
 | `jalali-date.test.js` | — (Node) | تبدیل و اعتبارسنجی تقویم شمسی در `jalali-date-picker.js` |
 | `zip-audit.mjs` | — (Node) | ساختار بستهٔ ZIP: نبود رازها و `node_modules`، بودن فایل‌های لازم نصب، نبود دادهٔ کاربری در `storage/private`، نبود ارجاع CDN، نبود فایل تکراری |
 | `build-package.mjs` | — (Node) | ساخت بستهٔ ZIP قابل‌تحویل از پوشهٔ پروژه (بدون راز، `node_modules` و دادهٔ کاربری)؛ خروجی مرتب و تکرارپذیر است و پیش‌پوشهٔ `erooydad` دارد |
@@ -34,6 +37,9 @@ npm install          # @php-wasm/node، @php-wasm/universal، @adrianfalleiro/ma
 ```bash
 node tests/static-analyze.js        # تحلیل ایستا (سریع، بدون WASM)
 node tests/gen-routes-doc.mjs --check  # هم‌خوانی سند مسیرها با کد
+node tests/unit-run.mjs              # آزمون واحد (tests/Unit/*.php)
+node tests/security-run.mjs          # آزمون امنیت
+node tests/acceptance-run.mjs        # آزمون پذیرش (سه سفر کامل)
 node tests/jalali-date.test.js      # آزمون تقویم شمسی (سریع، بدون WASM)
 > `jalali-date.test.js` فایل زیر آزمون را با مسیر نسبی نسبت به پوشهٔ `tests/` می‌خواند؛ پس باید از ریشهٔ پروژه (`project/`) اجرا شود، نه از یک پوشهٔ کپی‌شده.
 

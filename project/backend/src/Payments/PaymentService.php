@@ -64,7 +64,9 @@ final class PaymentService
         if ($payment['status'] === 'refunded') {
             throw new \DomainException('این سند پرداخت قبلاً استرداد شده است.');
         }
-        if ($payment['status'] !== 'pending') {
+        // ادامهٔ پرداخت: سندِ «ناموفق» قابل تلاش دوباره است (دکمهٔ «ادامهٔ پرداخت آزمایشی»).
+        // سندِ لغو‌شده ادامه‌پذیر نیست؛ کاربر دوباره ثبت‌نام می‌کند و سند تازه می‌گیرد.
+        if ($payment['status'] !== 'pending' && $payment['status'] !== 'failed') {
             throw new \DomainException('این سند پرداخت در وضعیت قابل پرداخت نیست.');
         }
         $result = SandboxGateway::charge($scenario, (int)$payment['total_toman'], ['payment_id' => $paymentId]);

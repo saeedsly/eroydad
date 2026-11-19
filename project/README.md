@@ -67,6 +67,16 @@ npm --prefix tests run zip           # بازرس بسته: بدون راز، ق
 
 فقط `national_id,municipality` به همین نام انگلیسی در سطر اول پذیرفته می‌شود؛ فایل حداکثر ۲ MiB و ۲۰٬۰۰۰ ردیف دارد. کد ملی خام در پایگاه داده نگهداری نمی‌شود؛ برای مقایسه HMAC با کلید اختصاصی ذخیره می‌شود. فقط مدیر سامانه می‌تواند فهرست را وارد کند. حذف/غیرفعال‌کردن فهرست، حساب‌های قبلاً تاییدشده را خودکار معلق نمی‌کند؛ این رفتار در نسخه فعلی نیازمند سیاست و عملیات مدیریتی است.
 
+## اسناد
+
+- [`PLAN-FA.md`](PLAN-FA.md) — برنامهٔ بهبود جاری (چهار کاربرگ)
+- [`ROADMAP-FA.md`](ROADMAP-FA.md) — نقشهٔ راه ۹۰ قابلیت و وضعیت هر مورد
+- **مسیرها و API:** [`docs/api/routes.md`](docs/api/routes.md) (تولیدشده از کد) · [`docs/api/auth.md`](docs/api/auth.md) (نشست، CSRF، مجوز)
+- **معماری:** [`docs/architecture/overview.md`](docs/architecture/overview.md) · [`docs/architecture/data-model.md`](docs/architecture/data-model.md)
+- **استقرار:** [`docs/deployment/xampp.md`](docs/deployment/xampp.md) (نصب تمیز + چک‌لیست دستی) · [`docs/deployment/linux.md`](docs/deployment/linux.md) · [`docs/deployment/backup.md`](docs/deployment/backup.md)
+- **پرداخت:** [`docs/payment/sandbox.md`](docs/payment/sandbox.md) · [`docs/payment/money.md`](docs/payment/money.md)
+- **امنیت:** [`docs/security/release-checklist.md`](docs/security/release-checklist.md)
+
 ## انتشار امن و محدوده
 
 این راهنما برای نصب محلی/آزمایشی است، نه ادعای آمادگی تولید. چک‌لیست امنیت پیش از انتشار در `docs/security/release-checklist.md` است و باید بند به بند روی محیط مقصد پر شود. برای محیط سازمانی TLS اجباری، backup رمزگذاری‌شده و آزموده‌شده، محدودیت دسترسی به export، retention و پاکسازی log، مانیتورینگ، آزمون بازیابی، بازبینی امنیتی و تست مرورگرهای واقعی لازم است. اطلاعات دیتابیس، `APP_KEY`، HMAC و کلید امضای بلیت secrets هستند. خروجی CSV شرکت‌کنندگان شامل نام و موبایل است؛ آن را فقط برای هدف اجرایی مجاز نگهدار و پس از استفاده حذف کن.

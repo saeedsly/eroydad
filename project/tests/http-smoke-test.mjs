@@ -180,6 +180,20 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   ok('پیوند حریم خصوصی در پاورقی به صفحهٔ کامل اشاره می‌کند', home.text.includes('href="/privacy"'), home.text.slice(-700));
   ok('هر دو صفحهٔ حقوقی به هم پیوند دارند', termsPage.text.includes('/privacy') && privacyPage.text.includes('/terms'));
 
+  // ---------- نصب‌کنندهٔ یک‌مرحله‌ای (install.php) ----------
+  const installHandler = new PHPRequestHandler({
+    php: env.php,
+    documentRoot: '/project',
+    absoluteUrl: 'http://localhost/',
+    cookieStore: jar,
+    getFileNotFoundAction: () => ({ type: 'internal-redirect', uri: '/index.php' }),
+  });
+  const installer = await installHandler.request({ url: '/install.php', method: 'GET' });
+  const installerText = typeof installer.text === 'string' ? installer.text : new TextDecoder().decode(installer.stdout ?? installer.body ?? new Uint8Array());
+  ok('نصب‌کنندهٔ وب در نصبِ کامل‌شده کد ۲۰۰ می‌دهد', installer.httpStatusCode === 200 && !phpError(installerText), 'status=' + installer.httpStatusCode);
+  ok('نصب‌کننده پس از نصب قفل است و فرم را نشان نمی‌دهد', installerText.includes('نصب کامل است') && !installerText.includes('admin_password'), installerText.slice(0, 200));
+  ok('نصب‌کننده محتوای .env را افشا نمی‌کند', !installerText.includes('APP_KEY='), installerText.slice(0, 200));
+
   const notFound = await req('/this-page-does-not-exist');
   ok('صفحهٔ ناموجود کد ۴۰۴ می‌دهد', notFound.status === 404, 'status=' + notFound.status);
 

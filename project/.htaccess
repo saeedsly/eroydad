@@ -6,6 +6,8 @@ RewriteRule (^|/)\. - [F,L]
 RewriteRule ^(?:backend|database|deployment|storage|tests|frontend/views)(?:/|$) - [F,L,NC]
 # Public static files are served from the only public tree.
 RewriteRule ^assets/(.*)$ frontend/public/assets/$1 [END]
+# One-click web installer is a real file (delete it after installation).
+RewriteRule ^install\.php$ - [END]
 # Progressive web app files (installable offline page and service worker).
 RewriteRule ^(manifest\.webmanifest|sw\.js)$ frontend/public/$1 [END]
 

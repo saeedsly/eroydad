@@ -120,6 +120,10 @@ if (route('GET', '/terms', $method, $path)) {
     render('terms', ['title'=>'شرایط استفاده و مالکیت']);
     exit;
 }
+if (route('GET', '/privacy', $method, $path)) {
+    render('privacy', ['title'=>'حریم خصوصی']);
+    exit;
+}
 
 // ---------- احراز هویت ----------
 if (route('GET', '/register', $method, $path)) { render('auth/register',['title'=>'ساخت حساب']); exit; }

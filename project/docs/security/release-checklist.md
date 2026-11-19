@@ -55,7 +55,7 @@
 - [ ] بازبینی حقوقی متن `شرایط استفاده و مالکیت` و `حریم خصوصی` انجام شده باشد (فقط متن پایه در بسته است).
 - [ ] آزمون مرورگر واقعی (Chrome/Firefox/Safari موبایل و دسکتاپ) برای منو، تاریخ شمسی، اسکن QR و چاپ گواهی انجام شود.
 - [ ] نصب تمیز روی XAMPP ویندوز مقصد با همین بسته آزمایش و نتیجه در سند استقرار ثبت شود.
-- [ ] نتیجهٔ `npm --prefix tests run analyze`, `routes`, `lint`, `schema`, `migration`, `migration:runner`, `unit`, `integration`, `security`, `acceptance`, `http`, `datepicker` پیوست گزارش انتشار شود.
+- [ ] نتیجهٔ `npm --prefix tests run analyze`, `routes`, `lint`, `schema`, `migration`, `migration:runner`, `unit`, `integration`, `security`, `acceptance`, `http`, `browser`, `install:clean`, `datepicker` پیوست گزارش انتشار شود.
 - [ ] بستهٔ انتشار با `npm --prefix tests run package` ساخته شود و `npm --prefix tests run zip` روی همان فایل سبز باشد (نبود راز/`node_modules`/دادهٔ کاربری، بودن فایل‌های لازم نصب، نبود ارجاع CDN).
 
 > این چک‌لیست جای ممیزی امنیتی حرفه‌ای را نمی‌گیرد؛ برای محیط سازمانی، بازبینی امنیتی مستقل و

@@ -46,6 +46,11 @@
 npm --prefix tests install
 npm --prefix tests run analyze       # تحلیل ایستا: route/سرویس/view + فرم‌ها + دسترس‌پذیری
 npm --prefix tests run routes         # هم‌خوانی سند مسیرها (docs/api/routes.md) با کد
+npm --prefix tests run security       # آزمون امنیت (مالکیت، CSRF، XSS، محدودیت نرخ)
+npm --prefix tests run acceptance     # آزمون پذیرش (سه سفر کامل کاربر/پرداخت/مدیر)
+npm --prefix tests run browser        # آزمون مرورگر و اندازه‌های صفحه (Chromium محلی)
+npm --prefix tests run install:clean  # آزمون نصب تمیز از خودِ بستهٔ ZIP
+npm --prefix tests run all            # کل زنجیره به‌ترتیب (بدون هم‌زمانی)
 npm --prefix tests run lint          # نحوی PHP 7.4 برای همهٔ فایل‌ها
 npm --prefix tests run schema        # اجرای schema.sql روی MariaDB واقعی
 npm --prefix tests run migration     # گام‌های مهاجرت ۰۰۲ و بی‌خطر‌بودن اجرای دوباره
@@ -76,6 +81,7 @@ npm --prefix tests run zip           # بازرس بسته: بدون راز، ق
 - **استقرار:** [`docs/deployment/xampp.md`](docs/deployment/xampp.md) (نصب تمیز + چک‌لیست دستی) · [`docs/deployment/linux.md`](docs/deployment/linux.md) · [`docs/deployment/backup.md`](docs/deployment/backup.md)
 - **پرداخت:** [`docs/payment/sandbox.md`](docs/payment/sandbox.md) · [`docs/payment/money.md`](docs/payment/money.md)
 - **امنیت:** [`docs/security/release-checklist.md`](docs/security/release-checklist.md)
+- **حقوقی:** [`docs/legal/terms-fa.md`](docs/legal/terms-fa.md) · [`docs/legal/privacy-fa.md`](docs/legal/privacy-fa.md) (صفحه‌های کاربری: `/terms` و `/privacy`)
 
 ## انتشار امن و محدوده
 

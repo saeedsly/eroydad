@@ -17,16 +17,20 @@
     "unit": "node unit-run.mjs",
     "security": "node security-run.mjs",
     "acceptance": "node acceptance-run.mjs",
+    "install:clean": "node clean-install-test.mjs",
+    "browser": "node browser-smoke.mjs",
     "http": "node http-smoke-test.mjs",
     "a11y": "node static-analyze.js",
     "datepicker": "node jalali-date.test.js",
     "zip": "node zip-audit.mjs",
     "package": "node build-package.mjs",
-    "all": "node static-analyze.js && node gen-routes-doc.mjs --check && node jalali-date.test.js && node php-lint-wasm.mjs && node schema-test.mjs && node migration-test.mjs && node migrate-run-test.mjs && node unit-run.mjs && node integration-run.mjs && node security-run.mjs && node acceptance-run.mjs && node http-smoke-test.mjs && node build-package.mjs && node zip-audit.mjs"
+    "all": "node static-analyze.js && node gen-routes-doc.mjs --check && node jalali-date.test.js && node php-lint-wasm.mjs && node schema-test.mjs && node migration-test.mjs && node migrate-run-test.mjs && node unit-run.mjs && node integration-run.mjs && node security-run.mjs && node acceptance-run.mjs && node http-smoke-test.mjs && node browser-smoke.mjs && node build-package.mjs && node clean-install-test.mjs && node zip-audit.mjs"
   },
   "devDependencies": {
     "@adrianfalleiro/mariadb-wasm": "^0.1.2",
     "@php-wasm/node": "^3.1.54",
-    "@php-wasm/universal": "^3.1.54"
+    "@php-wasm/universal": "^3.1.54",
+    "@sparticuz/chromium": "^131.0.1",
+    "puppeteer-core": "^23.11.1"
   }
 }

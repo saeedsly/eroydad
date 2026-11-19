@@ -16,6 +16,8 @@
 | `unit-run.mjs` + `Unit/*.php` | PHP 7.4 (WASM) | آزمون واحدِ منطق خالص: مالیات و Money، ماتریس مجوزها، اندیس ستون XLSX، خروجی ICS، کد ملی (۵ فایل، ۵۱ بررسی) |
 | `security-run.mjs` | PHP 7.4 + MariaDB | امنیت در سطح HTTP: مالکیت/IDOR روی پرداخت-بلیت-بازخورد-رسید، 403 نقش، CSRF (بدون/نادرست/درست)، XSS ذخیره‌شده در نام سازمانی، باطل‌شدن نشست با «خروج از همه»، محدودیت نرخ ورود (۲۳ بررسی) |
 | `acceptance-run.mjs` | PHP 7.4 + MariaDB | سه سفر کامل: فراگیر (ثبت‌نام تا لغو و بازخورد و تیکت)، پولی (شکست ← ادامه ← موفق ← رسید)، مدیر (داشبورد + بازکردن واقعی zip/XML خروجی XLSX) — ۳۳ بررسی |
+| `clean-install-test.mjs` | PHP 7.4 + MariaDB | بند ۸۵ نقشه‌راه: استخراج واقعیِ ZIP تحویلی ← بررسی ساختار (بدون `.env`، بدون `node_modules`) ← دیتابیس تازه + schema + migration ← بالا آوردن فرانت‌کنترل از نسخهٔ استخراج‌شده ← یک نوشتن واقعی (ساخت حساب) — ۲۵ بررسی |
+| `browser-smoke.mjs` | Chromium 131 واقعی (npm) | بند ۸۶ نقشه‌راه: سه اندازهٔ ۳۶۰/۷۶۸/۱۲۸۰ روی چهار صفحهٔ کلیدی — بدون اسکرول افقی، بدون خطای JS، بدون درخواست شکسته، منوی کشویی در موبایل و دسکتاپ، فرم ورود در دیدرس، فونت محلی — ۱۹ بررسی |
 | `jalali-date.test.js` | — (Node) | تبدیل و اعتبارسنجی تقویم شمسی در `jalali-date-picker.js` |
 | `zip-audit.mjs` | — (Node) | ساختار بستهٔ ZIP: نبود رازها و `node_modules`، بودن فایل‌های لازم نصب، نبود دادهٔ کاربری در `storage/private`، نبود ارجاع CDN، نبود فایل تکراری |
 | `build-package.mjs` | — (Node) | ساخت بستهٔ ZIP قابل‌تحویل از پوشهٔ پروژه (بدون راز، `node_modules` و دادهٔ کاربری)؛ خروجی مرتب و تکرارپذیر است و پیش‌پوشهٔ `erooydad` دارد |
@@ -40,6 +42,8 @@ node tests/gen-routes-doc.mjs --check  # هم‌خوانی سند مسیرها �
 node tests/unit-run.mjs              # آزمون واحد (tests/Unit/*.php)
 node tests/security-run.mjs          # آزمون امنیت
 node tests/acceptance-run.mjs        # آزمون پذیرش (سه سفر کامل)
+node tests/clean-install-test.mjs    # آزمون نصب تمیز از خودِ بستهٔ ZIP (بند ۸۵)
+node tests/browser-smoke.mjs         # آزمون مرورگر و اندازه‌های صفحه (بند ۸۶؛ Chromium از devDependencies نصب می‌شود)
 node tests/jalali-date.test.js      # آزمون تقویم شمسی (سریع، بدون WASM)
 > `jalali-date.test.js` فایل زیر آزمون را با مسیر نسبی نسبت به پوشهٔ `tests/` می‌خواند؛ پس باید از ریشهٔ پروژه (`project/`) اجرا شود، نه از یک پوشهٔ کپی‌شده.
 

@@ -173,6 +173,13 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   ok('صفحهٔ رویداد پولی برای مهمان، دکمۀ «ورود و ثبت‌نام» را نشان می‌دهد', /ورود و ثبت‌نام/.test(paidDetail.text) && !/name="idempotency_key"/.test(paidDetail.text), paidDetail.text.slice(0, 400));
   ok('پیامک/درگاه واقعی در صفحه اعلام می‌شود', /هیچ وجه واقعی جابه‌جا نمی‌شود/.test(paidDetail.text));
 
+  const termsPage = await req('/terms');
+  ok('صفحهٔ شرایط استفاده کد ۲۰۰ می‌دهد و بخش مالکیت دارد', termsPage.status === 200 && termsPage.text.includes('مالکیت') && !phpError(termsPage.text), 'status=' + termsPage.status);
+  const privacyPage = await req('/privacy');
+  ok('صفحهٔ حریم خصوصی کد ۲۰۰ می‌دهد و بخش حقوق کاربر دارد', privacyPage.status === 200 && privacyPage.text.includes('حقوق شما') && !phpError(privacyPage.text), 'status=' + privacyPage.status);
+  ok('پیوند حریم خصوصی در پاورقی به صفحهٔ کامل اشاره می‌کند', home.text.includes('href="/privacy"'), home.text.slice(-700));
+  ok('هر دو صفحهٔ حقوقی به هم پیوند دارند', termsPage.text.includes('/privacy') && privacyPage.text.includes('/terms'));
+
   const notFound = await req('/this-page-does-not-exist');
   ok('صفحهٔ ناموجود کد ۴۰۴ می‌دهد', notFound.status === 404, 'status=' + notFound.status);
 

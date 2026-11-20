@@ -217,7 +217,7 @@ echo 'SEED ' . json_encode(['user_id' => $userId, 'system_admin_id' => $sysId, '
   ok('فایل CSS سرو می‌شود', css.status === 200 && css.text.length > 1000, 'status=' + css.status);
   const tokens = await req('/assets/css/design-system.css');
   ok('CSS توکن‌ها سرو می‌شود', tokens.status === 200 && tokens.text.length > 500, 'status=' + tokens.status);
-  ok('توکن‌های طراحی در CSS اصلی تعریف و در سراسر رابط مصرف می‌شوند', /--ds-[a-z-]+:\s*#/.test(css.text) && /var\(--ds-[a-z-]+\)/.test(tokens.text), 'tokens');
+  ok('توکن‌های طراحی در CSS اصلی تعریف و در سراسر رابط مصرف می‌شوند', /--[a-z][a-z0-9-]+:\s*#[0-9a-f]{3,8}/i.test(css.text) && /var\(--[a-z][a-z0-9-]+\)/.test(tokens.text), 'tokens');
   ok('CSS اصلی، فایل افزونۀ رابط را هم فراخوانی می‌کند', /assets\/css\/design-system\.css/.test(home.text), home.text.slice(0, 600));
   const font = await req('/assets/fonts/vazirmatn-variable.woff2');
   ok('فونت فارسی محلی سرو می‌شود', font.status === 200 && font.text.length > 5000, 'status=' + font.status);

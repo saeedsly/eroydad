@@ -21,7 +21,7 @@ if ($user) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#04120c">
+  <meta name="theme-color" content="#fafaf7">
   <meta name="description" content="ای‌رویداد؛ سامانه رویدادها و دوره‌های آموزشی شهرداری‌های خراسان رضوی.">
   <title><?= h($title ?? 'ای‌رویداد') ?> | ای‌رویداد</title>
   <link rel="manifest" href="/manifest.webmanifest">

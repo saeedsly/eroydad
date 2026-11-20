@@ -22,6 +22,15 @@
       .catch(function () {});
   }
 
+  // تازه‌سازی فقط وقتی صفحه دیده می‌شود؛ در پس‌زمینه شبکه و CPU هدر نمی‌رود.
+  var timer = null;
+  function start() { if (!timer) timer = window.setInterval(refresh, 15000); }
+  function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+
   refresh();
-  window.setInterval(refresh, 15000);
+  start();
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop();
+    else { refresh(); start(); }
+  });
 })();

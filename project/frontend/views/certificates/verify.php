@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'استعلام گواهی']]; ?>
 <?php
 /** @var array $certificate */
 ?>

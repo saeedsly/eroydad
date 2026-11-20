@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'امنیت حساب','href'=>'/account/security'], ['label'=>'احراز دو مرحله‌ای']]; ?>
 <?php
 /** @var array $setup */
 ?>

@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'امنیت حساب','href'=>'/account/security'], ['label'=>'کدهای بازیابی']]; ?>
 <?php
 /** @var array $codes */
 ?>

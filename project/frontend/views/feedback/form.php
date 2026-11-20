@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'بازخورد دوره']]; ?>
 <?php
 /** @var array $registration */
 /** @var array $feedback */

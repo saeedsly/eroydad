@@ -16,14 +16,15 @@
 
 /* ---------- توکن‌ها ---------- */
 :root {
+  color-scheme: light;
   /* رنگ‌های هسته */
   --paper: #fafaf7;
   --paper-deep: #f2f2ec;
   --surface: #ffffff;
   --ink: #16161c;
   --ink-soft: #3d3d48;
-  --muted: #6e6e7a;
-  --faint: #9a9aa6;
+  --muted: #6a6a76;  /* AA روی سطح سفید خالص */
+  --faint: #70707c;  /* AA: ≥4.5:1 روی کاغذ */
   --line: #e9e9e3;
   --line-strong: #d8d8d0;
 
@@ -57,6 +58,14 @@
   --dur: 0.2s;
   --dur-fast: 0.14s;
 
+  /* مقیاس فاصله‌گذاری (پایهٔ ۴px) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+
+  /* مقیاس تایپوگرافی */
+  --fs-xs: 9.5px; --fs-sm: 11px; --fs-base: 15px;
+  --fs-md: 17.5px; --fs-lg: 23px; --fs-xl: 35px; --fs-2xl: 60px;
+
   --font-scale: 100%;
 }
 
@@ -73,7 +82,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font: 15px/1.85 Vazirmatn, Tahoma, system-ui, sans-serif;
+  font: var(--fs-base)/1.85 Vazirmatn, Tahoma, system-ui, sans-serif;
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
 }
@@ -100,7 +109,7 @@ h1, h2, h3 { letter-spacing: 0; }
 
 .skip-link {
   position: absolute; right: 16px; top: -60px; z-index: 100;
-  background: var(--ink); color: #fff; padding: 10px 16px;
+  background: #16161c; color: #fff; padding: 10px 16px;
   border-radius: 0 0 10px 10px; transition: top var(--dur) var(--ease);
 }
 .skip-link:focus { top: 0; }
@@ -154,25 +163,10 @@ h1, h2, h3 { letter-spacing: 0; }
   padding: 1px 6px; font-size: 9px; font-weight: 700;
 }
 
-.theme-toggle {
-  width: 38px; height: 38px; border-radius: 12px;
-  border: 1px solid var(--line); background: var(--surface);
-  color: var(--accent); display: grid; place-items: center; font-size: 18px;
-  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
-}
-.theme-toggle:hover { border-color: #c7d2fe; transform: translateY(-1px); box-shadow: var(--sh-1); }
-
-.menu-toggle {
-  display: none; background: var(--surface); border: 1px solid var(--line);
-  color: var(--accent); border-radius: 13px;
-}
-
 /* ---------- بنر بالای محتوا ---------- */
 .system-notice { background: var(--accent-soft); color: #3730a3; font-size: 10px; }
 .system-notice > .container { min-height: 30px; display: flex; justify-content: space-between; align-items: center; }
-.system-notice span + span { color: var(--warn); font-weight: 700; }
-.system-notice { display: block; }
-.system-notice .container { display: flex; }
+.system-notice span + span { color: #92400e; font-weight: 700; }
 
 /* ---------- دکمه‌ها ---------- */
 .btn {
@@ -253,9 +247,10 @@ h1, h2, h3 { letter-spacing: 0; }
   color: var(--accent); font-size: 11.5px; font-weight: 800;
 }
 .eyebrow span { font-size: 17px; color: var(--violet); }
+[data-theme="dark"] .eyebrow span { color: #a78bfa; }
 
 .hero-copy h1 {
-  font-size: 60px; line-height: 1.3; letter-spacing: 0;
+  font-size: var(--fs-2xl); line-height: 1.3; letter-spacing: 0;
   font-weight: 900; margin: 18px 0 12px; color: var(--ink);
 }
 .hero-copy h1 em,
@@ -281,7 +276,7 @@ h1, h2, h3 { letter-spacing: 0; }
 }
 .hero-link { font-size: 11.5px; font-weight: 800; color: var(--ink-soft); }
 .hero-link:hover { color: var(--accent); }
-.hero-link span { margin-right: 6px; }
+.hero-link span { margin-inline-start: 6px; }
 
 .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 27px; }
 .note-check {
@@ -376,12 +371,12 @@ h1, h2, h3 { letter-spacing: 0; }
   margin-bottom: 26px; gap: 16px;
 }
 .section-head h1, .section-head h2 {
-  font-size: 35px; line-height: 1.45; margin: 8px 0 2px;
+  font-size: var(--fs-xl); line-height: 1.45; margin: 8px 0 2px;
   letter-spacing: 0; font-weight: 900; color: var(--ink);
 }
 .section-head p, .section-head .muted { color: var(--muted); font-size: 12.5px; margin: 0; }
 .text-arrow { font-size: 11.5px; font-weight: 800; color: var(--accent); padding-bottom: 7px; }
-.text-arrow span { margin-right: 8px; display: inline-block; transition: transform var(--dur) var(--ease); }
+.text-arrow span { margin-inline-start: 8px; display: inline-block; transition: transform var(--dur) var(--ease); }
 .text-arrow:hover span { transform: translateX(-4px); }
 
 .page-banner {
@@ -393,6 +388,7 @@ h1, h2, h3 { letter-spacing: 0; }
 }
 .page-banner h1 { font-size: 37px; margin: 8px 0; font-weight: 900; letter-spacing: 0; color: var(--ink); }
 .page-banner p { font-size: 12.5px; color: var(--muted); margin: 0; }
+.page-banner .section-head { margin-bottom: 0; }
 
 /* ---------- کارت‌های رویداد ---------- */
 .event-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
@@ -417,8 +413,8 @@ h1, h2, h3 { letter-spacing: 0; }
 .art-tag {
   position: absolute; top: 12px; right: 12px; z-index: 2;
   background: rgba(255, 255, 255, 0.92); border-radius: 999px;
-  padding: 4px 11px; color: var(--accent-strong);
-  font-size: 9.5px; font-weight: 800; backdrop-filter: blur(6px);
+  padding: 4px 11px;
+  font-size: 9.5px; font-weight: 800; color: #4338ca; backdrop-filter: blur(6px);
 }
 .art-symbol {
   position: absolute; left: 30px; top: 25px;
@@ -450,7 +446,7 @@ h1, h2, h3 { letter-spacing: 0; }
   display: block; text-align: left; color: var(--accent);
   font-size: 10.5px; font-weight: 800; margin-top: 8px;
 }
-.card-link span { margin-right: 5px; display: inline-block; transition: transform var(--dur) var(--ease); }
+.card-link span { margin-inline-start: 5px; display: inline-block; transition: transform var(--dur) var(--ease); }
 .event-card:hover .card-link span { transform: translateX(-4px); }
 .event-grid + .empty-box { margin-top: 15px; }
 
@@ -490,7 +486,7 @@ h1, h2, h3 { letter-spacing: 0; }
 }
 .about-mini b { font-size: 12px; }
 .about-copy h2 { font-size: 38px; line-height: 1.38; margin: 10px 0; font-weight: 900; color: #fff; }
-.about-copy .eyebrow { color: #a5b4fc; }
+.about-copy .eyebrow { color: #c7d2fe; }
 .about-copy .eyebrow span { color: #fbbf24; }
 .about-copy p { font-size: 13px; color: #b9b9c9; line-height: 2.15; }
 .about-copy ul { list-style: none; padding: 0; margin: 18px 0 22px; display: grid; gap: 10px; }
@@ -500,7 +496,7 @@ h1, h2, h3 { letter-spacing: 0; }
   background: rgba(251, 191, 36, 0.18); color: #fbbf24;
   border: 1px solid rgba(251, 191, 36, 0.4);
   border-radius: 50%; display: inline-grid; place-items: center;
-  margin-left: 8px; font-size: 11px;
+  margin-inline-end: 8px; font-size: 11px;
 }
 .about-copy .btn-primary {
   background: linear-gradient(135deg, #6366f1, #4f46e5);
@@ -657,9 +653,9 @@ h1, h2, h3 { letter-spacing: 0; }
 
 .choice-field { border: 1px solid var(--line); border-radius: var(--r-md); padding: 8px 12px; background: var(--surface); }
 .choice-field legend { font-size: 10.5px; font-weight: 700; color: var(--ink-soft); }
-.radio-row { display: flex !important; flex-direction: row !important; align-items: center; gap: 8px !important; margin: 4px 0; }
-.radio-row input, .consent-row input { width: auto !important; accent-color: var(--accent); }
-.consent-row { display: flex !important; flex-direction: row !important; align-items: center; }
+.form-stack .radio-row { display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 4px 0; }
+.form-stack .radio-row input, .form-stack .consent-row input { width: auto; accent-color: var(--accent); }
+.form-stack .consent-row { display: flex; flex-direction: row; align-items: center; }
 .consent-row span { font-size: 9.5px; font-weight: 400; }
 .employee-fields { background: var(--accent-soft); border-radius: var(--r-md); padding: 12px; }
 .employee-fields[hidden] { display: none; }
@@ -693,7 +689,7 @@ h1, h2, h3 { letter-spacing: 0; }
   box-shadow: 0 10px 26px rgba(99, 102, 241, 0.35);
 }
 .auth-card .eyebrow { justify-content: center; }
-.auth-card h1 { font-size: 23px; margin: 4px 0; font-weight: 900; color: var(--ink); }
+.auth-card h1 { font-size: var(--fs-lg); margin: 4px 0; font-weight: 900; color: var(--ink); }
 .auth-bottom { text-align: center; font-size: 10.5px; color: var(--muted); margin-top: 17px; }
 .auth-bottom a { color: var(--accent); font-weight: 800; }
 .auth-bottom a:hover { color: var(--accent-strong); }
@@ -735,7 +731,6 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 .status-answered, .status-in_progress { background: #f0fdfa; color: #0f766e; }
 
 /* ---------- مدیریت ---------- */
-.admin-banner { background: var(--accent-soft); }
 .admin-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
 .admin-nav a {
   background: var(--surface); border: 1px solid var(--line);
@@ -951,7 +946,7 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
   border: 1px solid var(--line); border-radius: var(--r-md);
   box-shadow: var(--sh-2);
 }
-.jalali-calendar[hidden] { display: none !important; }
+.jalali-calendar[hidden] { display: none; }
 .jalali-calendar-head {
   display: grid; grid-template-columns: 36px 1fr 36px;
   align-items: center; text-align: center;
@@ -977,7 +972,8 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 .jalali-calendar-day:hover { background: var(--accent-soft); color: var(--accent-strong); }
 .jalali-calendar-day.is-selected { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; font-weight: 800; }
 .jalali-calendar-day:focus-visible { outline: 2px solid #818cf8; outline-offset: 1px; }
-.date-input-error { min-height: 0; color: var(--danger) !important; font-size: 9.5px; }
+.date-input-error { min-height: 0; font-size: 9.5px; }
+.form-stack .date-input-error { color: var(--danger); }
 .date-input-error:empty { display: none; }
 
 /* ---------- دو ستونه ---------- */
@@ -1000,11 +996,12 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 .footer-grid a:hover { color: #a5b4fc; }
 .footer-logo .brand b { color: #fff; }
 .footer-logo .brand small { color: #8a8a9a; }
+.footer-logo .brand small { color: #8a8a9a; }
 .footer-logo small { max-width: 270px; display: block; }
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex; justify-content: space-between; gap: 12px;
-  padding: 13px 0; color: #7a7a8a; font-size: 8.5px;
+  padding: 13px 0; color: #8a8a9a; font-size: 8.5px;
 }
 
 /* ---------- حرکت (افکت‌های اسکرول) ---------- */
@@ -1017,13 +1014,14 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 
 /* ---------- حالت تیره ---------- */
 [data-theme="dark"] {
+  color-scheme: dark;
   --paper: #101014;
   --paper-deep: #16161c;
   --surface: #17171d;
   --ink: #f2f2f5;
   --ink-soft: #d0d0da;
   --muted: #9a9aa8;
-  --faint: #7a7a88;
+  --faint: #8a8a98;  /* AA روی مرکب تیره */
   --line: #2a2a33;
   --line-strong: #3a3a45;
   --accent: #818cf8;
@@ -1044,7 +1042,7 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 [data-theme="dark"] .site-header { background: rgba(16, 16, 20, 0.88); border-color: #2a2a33; }
 [data-theme="dark"] .site-header.is-scrolled { box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45); }
 [data-theme="dark"] .brand b { color: #f2f2f5; }
-[data-theme="dark"] .brand small { color: #7a7a88; }
+[data-theme="dark"] .brand small { color: #8a8a98; }
 [data-theme="dark"] .nav-account { color: #c8c8d4; }
 [data-theme="dark"] .nav-user { color: #f2f2f5; }
 [data-theme="dark"] .nav-bell, [data-theme="dark"] .theme-toggle,
@@ -1134,6 +1132,14 @@ td small.table-sub { display: block; color: var(--faint); font-size: 8.5px; }
 [data-theme="dark"] .table-wrap { background: #17171d; }
 [data-theme="dark"] .search-form { background: #17171d; }
 [data-theme="dark"] .empty-box > span { color: #818cf8; }
+[data-theme="dark"] .skip-link { background: #f2f2f5; color: #16161c; }
+[data-theme="dark"] .art-tag { color: #4338ca; }
+[data-theme="dark"] .breadcrumb-bar { background: #101014; border-color: #2a2a33; }
+[data-theme="dark"] .breadcrumb a { color: #9a9aa8; }
+[data-theme="dark"] .breadcrumb [aria-current="page"] { color: #d0d0da; }
+[data-theme="dark"] .event-art-poster img,
+[data-theme="dark"] .detail-poster img,
+[data-theme="dark"] .poster-preview { background: linear-gradient(135deg, #1e1e36, #16161c); }
 
 /* ---------- تکمیلی: جلسه‌ها، برچسب‌ها، پوستر ---------- */
 .session-list { display: grid; gap: 11px; }
@@ -1163,6 +1169,36 @@ a.tag-chip:hover, button.tag-chip:hover { border-color: #c7d2fe; background: var
 
 .event-art-poster { position: relative; }
 .event-art-poster img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- نان‌ریزشی (مسیر صفحه) ---------- */
+.breadcrumb-bar { background: var(--paper); border-bottom: 1px solid var(--line); }
+.breadcrumb {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  list-style: none; margin: 0; padding: 9px 0;
+  font-size: var(--fs-sm);
+}
+.breadcrumb li { display: flex; align-items: center; gap: 6px; color: var(--faint); min-width: 0; }
+.breadcrumb li + li::before { content: "‹"; color: var(--line-strong); }
+.breadcrumb a { color: var(--muted); font-weight: 600; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb [aria-current="page"] {
+  color: var(--ink-soft); font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 46ch;
+}
+
+/* ---------- حالت بارگذاری دکمه ---------- */
+.btn[aria-busy="true"] { opacity: 0.72; pointer-events: none; position: relative; }
+.btn[aria-busy="true"]::after {
+  content: ""; position: absolute; inset-inline-start: 12px; top: 50%;
+  width: 13px; height: 13px; margin-top: -6.5px;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; animation: fx-spin 0.7s linear infinite;
+}
+
+/* ---------- اسکلت بارگذاری تصاویر ---------- */
+.event-art-poster img, .detail-poster img, .poster-preview {
+  background: linear-gradient(135deg, var(--accent-soft), var(--paper-deep));
+}
 
 /* ---------- واکنش‌گرایی ---------- */
 @media (max-width: 900px) {
@@ -1322,6 +1358,6 @@ a.tag-chip:hover, button.tag-chip:hover { border-color: #c7d2fe; background: var
   .floating-tag, .visual-orbit { animation: none !important; }
   .fx-ready .fx-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .btn, .event-card, .stat-card, .form-stack input,
-  .form-stack textarea, .form-stack select, .nav-links a::after { transition: none !important; }
+  .form-stack textarea, .form-stack select { transition: none !important; }
   html { scroll-behavior: auto; }
 }

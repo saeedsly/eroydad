@@ -33,7 +33,6 @@
   );
 
   if ('IntersectionObserver' in window) {
-    var index = 0;
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
@@ -42,15 +41,16 @@
       });
     }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
 
+    var pending = [];
     targets.forEach(function (el, i) {
       el.classList.add('fx-reveal');
       el.style.setProperty('--fx-delay', ((i % 4) * 70) + 'ms');
-      index = i;
       observer.observe(el);
+      pending.push(el);
     });
     // Anything already in view on load reveals immediately (no flash of hidden content).
     window.requestAnimationFrame(function () {
-      targets.forEach(function (el) {
+      pending.forEach(function (el) {
         var rect = el.getBoundingClientRect();
         if (rect.top < (window.innerHeight || 0) * 0.94) el.classList.add('fx-in');
       });

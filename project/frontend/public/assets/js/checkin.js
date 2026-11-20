@@ -89,7 +89,8 @@
       .then(function (mediaStream) {
         stream = mediaStream;
         video.srcObject = mediaStream;
-        video.play();
+        var playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(function () {});
         detector = new window.BarcodeDetector({ formats: ['qr_code'] });
         if (startButton) startButton.disabled = true;
         if (stopButton) stopButton.disabled = false;
@@ -122,6 +123,9 @@
       var csrf = queueForm.querySelector('input[name="_csrf"]');
       if (csrf) payload.append('_csrf', csrf.value);
       payload.append('queue', JSON.stringify(items));
+      var syncButton = queueForm.querySelector('button[type="submit"]');
+      if (syncButton) syncButton.setAttribute('aria-busy', 'true');
+      var done = function () { if (syncButton) syncButton.removeAttribute('aria-busy'); };
       // آدرس از action فرم گرفته می‌شود تا نصب در زیرپوشه هم درست کار کند.
       window.fetch(queueForm.action, {
         method: 'POST',
@@ -134,6 +138,7 @@
           return response.json();
         })
         .then(function (data) {
+          done();
           // تنها ردیف‌هایی که سرور پردازش کرد از صف حذف می‌شوند؛
           // ردیف‌های پردازش‌نشده (خطای شبکه/دسترسی) برای تلاش دوباره می‌مانند.
           var processed = {};
@@ -153,6 +158,7 @@
           }
         })
         .catch(function () {
+          done();
           setStatus('همگام‌سازی انجام نشد؛ صف آفلاین دست‌نخورده باقی ماند.');
         });
     });

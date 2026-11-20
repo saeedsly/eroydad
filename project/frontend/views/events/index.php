@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'رویدادها']]; ?>
 <?php
 /** @var array $events */
 /** @var array $filters */
@@ -7,12 +8,10 @@ $filters = $filters ?? [];
 $categories = $categories ?? [];
 $tags = $tags ?? [];
 ?>
-<section class="section container">
-  <div class="section-head">
+<section class="page-banner"><div class="container"><div class="section-head">
     <div><div class="eyebrow">کاتالوگ دوره‌ها</div><h1>همه رویدادها</h1><p>جست‌وجو و فیلتر پیشرفته بر اساس موضوع، شیوه برگزاری، تاریخ و هزینه</p></div>
-  </div>
-
-  <form class="filter-bar" method="get" action="/events" role="search" aria-label="فیلتر رویدادها">
+  </div></div></section>
+<section class="section container">  <form class="filter-bar" method="get" action="/events" role="search" aria-label="فیلتر رویدادها">
     <div class="filter-grid">
       <label class="field"><span>جست‌وجو</span><input type="search" name="q" value="<?= h($filters['q'] ?? '') ?>" placeholder="عنوان، موضوع یا توضیح دوره"></label>
       <label class="field"><span>دسته‌بندی</span><select name="category"><option value="">همهٔ دسته‌ها</option><?php foreach ($categories as $category): ?><option value="<?= h($category) ?>" <?= ($filters['category'] ?? '') === $category ? 'selected' : '' ?>><?= h($category) ?></option><?php endforeach; ?></select></label>

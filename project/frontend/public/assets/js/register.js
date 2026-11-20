@@ -1,4 +1,5 @@
 (function(){
+  'use strict';
   var inputs=document.querySelectorAll('input[name="account_type"]');
   var box=document.querySelector('.employee-fields');
   var national=document.querySelector('input[name="national_id"]');

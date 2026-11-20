@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پرداخت‌های آزمایشی']]; ?>
 <?php
 /** @var array $payments */
 $statusLabels = ['pending'=>'در انتظار پرداخت','paid'=>'پرداخت‌شده (آزمایشی)','failed'=>'ناموفق','cancelled'=>'لغوشده','refunded'=>'استردادشده'];

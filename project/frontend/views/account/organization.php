@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پنل فراگیر','href'=>'/account'], ['label'=>'اطلاعات سازمانی']]; ?>
 <?php
 /** @var array $profile */
 /** @var array $user */

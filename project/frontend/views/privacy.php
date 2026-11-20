@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'حریم خصوصی']]; ?>
 <section class="section container narrow">
   <div class="content-card">
     <div class="eyebrow">مستندات حقوقی</div>

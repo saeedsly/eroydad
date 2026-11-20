@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پرداخت‌ها','href'=>'/account/payments'], ['label'=>'رسید آزمایشی']]; ?>
 <?php
 /** @var array $receipt */
 $breakdown = $receipt['breakdown'];

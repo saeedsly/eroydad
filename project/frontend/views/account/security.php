@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پنل فراگیر','href'=>'/account'], ['label'=>'امنیت حساب']]; ?>
 <?php
 /** @var array $user */
 /** @var array $two_factor */

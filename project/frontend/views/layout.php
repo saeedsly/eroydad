@@ -1,5 +1,6 @@
 <?php
 $flash = $flash ?? takeFlash();
+$crumbs = $crumbs ?? [];  // مسیر صفحه؛ قالب‌ها با $crumbs پر می‌کنند
 $currentPath = parse_url((string)($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
 $basePath = appBasePath();
 if ($basePath !== '' && ($currentPath === $basePath || strpos($currentPath, $basePath . '/') === 0)) {
@@ -37,12 +38,12 @@ if ($user) {
 <a class="skip-link" href="#main-content">پرش به محتوای اصلی</a>
 <header class="site-header">
   <div class="container nav-row">
-    <button class="menu-toggle" type="button" aria-label="باز کردن منو" aria-expanded="false" aria-controls="primary-navigation"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <button class="menu-toggle" type="button" aria-label="باز کردن منو" title="منوی دسترسی" aria-expanded="false" aria-controls="primary-navigation"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     <a class="brand" href="/" aria-label="صفحه اصلی ای‌رویداد"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 25h22M8 25V13l8-6 8 6v12M12 16h2v3h-2zm6 0h2v3h-2zM14 25v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12 16 4l12 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>ای‌رویداد</b><small>رویدادهای الکترونیک شهرداری</small></span></a>
     <span class="header-spacer" aria-hidden="true"></span>
     <div class="nav-account">
       <?php if ($user): ?>
-        <a class="nav-bell" href="/notifications" aria-label="اعلان‌ها (<?= toPersianDigits((string)$unreadNotifications) ?> خوانده‌نشده)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="16" height="16"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><?php if ($unreadNotifications > 0): ?><b><?= toPersianDigits((string)$unreadNotifications) ?></b><?php endif; ?></a>
+        <a class="nav-bell" href="/notifications" title="اعلان‌ها" aria-label="اعلان‌ها (<?= toPersianDigits((string)$unreadNotifications) ?> خوانده‌نشده)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="16" height="16"><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5.5 2 6H4c.5-.5 2-2 2-6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10 19a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><?php if ($unreadNotifications > 0): ?><b><?= toPersianDigits((string)$unreadNotifications) ?></b><?php endif; ?></a>
         <a class="nav-user" href="/account"><?= h($user['full_name']) ?></a>
         <?php if ($isEventAdmin): ?><a class="btn btn-small btn-outline" href="/admin">مدیریت</a><?php endif; ?>
         <form method="post" action="/logout" class="inline-form"><?= csrfField() ?><button class="link-button" type="submit">خروج</button></form>
@@ -105,6 +106,7 @@ if ($user) {
 <main id="main-content">
 <?php if ($flash): ?><div class="container flash-wrap"><div class="flash flash-<?= h($flash['type']) ?>" role="status"><?= h($flash['message']) ?></div></div><?php endif; ?>
 <div class="system-notice"><div class="container"><span>ثبت‌نام و مدیریت دوره فعال است</span><span>درگاه پرداخت فقط آزمایشی است — بدون جابه‌جایی وجه</span></div></div>
+<?php if ($crumbs): ?><nav class="breadcrumb-bar" aria-label="مسیر صفحه"><div class="container"><ol class="breadcrumb"><?php foreach (array_values($crumbs) as $ci => $crumb): ?><li><?php if ($ci < count($crumbs) - 1 && !empty($crumb['href'])): ?><a href="<?= h($crumb['href']) ?>"><?= h($crumb['label']) ?></a><?php else: ?><span aria-current="page"><?= h($crumb['label']) ?></span><?php endif; ?></li><?php endforeach; ?></ol></div></nav><?php endif; ?>
 <?= $content ?? '' ?>
 </main>
 <footer class="site-footer"><div class="container footer-grid"><div><a class="brand footer-logo" href="/"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 25h22M8 25V13l8-6 8 6v12M12 16h2v3h-2zm6 0h2v3h-2zM14 25v-5h4v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12 16 4l12 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>ای‌رویداد</b><small>مؤسسه آموزش، تحقیقات و مشاوره شهرداری‌های خراسان رضوی</small></span></a><p>یادگیری امروز، خدمت‌رسانی بهتر به شهروندان فردا.</p></div><div><b>دسترسی سریع</b><a href="/events">رویدادها</a><a href="/#about">درباره مؤسسه</a><a href="/support">پشتیبانی</a></div><div><b>اطلاعات</b><a href="/#faq">پرسش‌های متداول</a><a href="/privacy">حریم خصوصی</a><a href="/terms">شرایط استفاده و مالکیت</a></div></div><div class="container footer-bottom"><span>© تمامی حقوق مادی و معنوی ای‌رویداد، شامل نام، نشان، طراحی، متن‌ها و نرم‌افزار، متعلق به مؤسسه آموزش، تحقیقات و مشاوره شهرداری‌های خراسان رضوی است. بازنشر یا بهره‌برداری تجاری بدون اجازهٔ کتبی ممنوع است.</span><span>نسخهٔ محلی — درگاه واقعی و پیامک غیرفعال</span></div></footer>

@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پرداخت‌ها','href'=>'/account/payments'], ['label'=>'درگاه آزمایشی']]; ?>
 <?php
 /** @var array $payment */
 /** @var array $scenarios */

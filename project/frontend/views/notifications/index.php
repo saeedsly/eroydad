@@ -1,14 +1,14 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'اعلان‌ها']]; ?>
 <?php
 /** @var array $notifications */
 /** @var int $unread */
 $typeLabels = ['registration'=>'ثبت‌نام','payment'=>'پرداخت آزمایشی','reminder'=>'یادآوری','ticket'=>'پشتیبانی','general'=>'عمومی'];
 ?>
-<section class="section container narrow">
-  <div class="section-head">
+<section class="page-banner"><div class="container narrow"><div class="section-head">
     <div><div class="eyebrow">مرکز اعلان‌ها</div><h1>اعلان‌های شما</h1><p><?= toPersianDigits((string)$unread) ?> اعلان خوانده‌نشده</p></div>
     <form method="post" action="/notifications/read"><?= csrfField() ?><button class="btn btn-soft btn-small" type="submit">خواندن همه</button></form>
-  </div>
-  <?php if ($notifications): ?>
+  </div></div></section>
+<section class="section container narrow">  <?php if ($notifications): ?>
     <ul class="notification-list">
       <?php foreach ($notifications as $notification): ?>
         <li class="notification-item<?= (int)$notification['is_read']===0 ? ' is-unread' : '' ?>">

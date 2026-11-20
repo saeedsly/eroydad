@@ -18,7 +18,7 @@
   align-items: stretch;
   gap: 3px;
   background: var(--surface);
-  border-right: 1px solid var(--line);
+  border-inline-start: 1px solid var(--line);
   box-shadow: 0 30px 70px rgba(22, 22, 28, 0.16);
   transform: translateX(-115%);
   transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);

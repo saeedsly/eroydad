@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'پنل فراگیر','href'=>'/account'], ['label'=>'تنظیمات نمایش']]; ?>
 <?php
 /** @var array $settings */
 /** @var array $scales */

@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'خانه','href'=>'/'], ['label'=>'رویدادها','href'=>'/events'], ['label'=>$event['title']]]; ?>
 <?php
 /** @var array $event */
 /** @var array $sessions */

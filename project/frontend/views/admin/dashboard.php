@@ -5,9 +5,8 @@
 $maxCount = 1;
 foreach ($daily as $day) { if ((int)$day['count'] > $maxCount) { $maxCount = (int)$day['count']; } }
 ?>
-<section class="section container">
-  <div class="section-head"><div><div class="eyebrow">پنل مدیریت</div><h1>نمای کلی سامانه</h1><p>وضعیت رویدادها، ثبت‌نام‌ها، پشتیبانی و مالی آزمایشی</p></div><a class="btn btn-primary" href="/admin/events/new">＋ ساخت رویداد</a></div>
-  <?php include PROJECT_ROOT . '/frontend/views/admin/partials/nav.php'; ?>
+<section class="page-banner"><div class="container"><div class="section-head"><div><div class="eyebrow">پنل مدیریت</div><h1>نمای کلی سامانه</h1><p>وضعیت رویدادها، ثبت‌نام‌ها، پشتیبانی و مالی آزمایشی</p></div><a class="btn btn-primary" href="/admin/events/new">＋ ساخت رویداد</a></div></div></section>
+<section class="section container">  <?php include PROJECT_ROOT . '/frontend/views/admin/partials/nav.php'; ?>
 
   <div class="stats-grid stats-grid-5">
     <div class="stat-card"><small>رویدادهای منتشرشده</small><b><?= toPersianDigits((string)$stats['events']) ?></b></div>

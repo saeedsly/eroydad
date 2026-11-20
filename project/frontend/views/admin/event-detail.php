@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'مدیریت','href'=>'/admin'], ['label'=>'رویدادها','href'=>'/admin/events'], ['label'=>$event['title']]]; ?>
 <?php
 /** @var array $event */
 /** @var array $attendees */

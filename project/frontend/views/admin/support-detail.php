@@ -1,3 +1,4 @@
+<?php $crumbs = [['label'=>'مدیریت','href'=>'/admin'], ['label'=>'پشتیبانی','href'=>'/admin/support'], ['label'=>'پیگیری تیکت']]; ?>
 <?php
 /** @var int $ticketId */
 /** @var array $messages */

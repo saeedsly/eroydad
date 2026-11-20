@@ -1,4 +1,5 @@
 (function(){
+  'use strict';
   var element=document.getElementById('ticketQr');
   if(!element)return;
   var printButton=document.getElementById('printTicket');
